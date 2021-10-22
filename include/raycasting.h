@@ -4,7 +4,24 @@
 #include <Eigen/Eigen>
 #include <vector>
 
-void RayCasting()
+void RayCasting2D()
+{
+    for(;;)
+    {
+        if(tMaxX < tMaxY)
+        {
+            tMaxX = tMaxX + tDeltaX;
+            x = x + stepX;
+        }
+        else
+        {
+            tMaxY = tMaxY + tDeltaY;
+            y = y + stepY;
+        }
+    }
+}
+
+void RayCasting3D()
 {
     
     do
@@ -26,7 +43,7 @@ void RayCasting()
         {
             if(tMaxY < tMaxZ)
             {
-                y = y + strpY;
+                y = y + stepY;
                 tMaxY = tMaxY + tDeltaY;
             }
             else
@@ -38,6 +55,11 @@ void RayCasting()
         }
     } while (list == NULL);
     
+}
+
+void RayCastingBresenham()
+{
+    //TODO
 }
 
 #endif //_RAYCASTING_H_
