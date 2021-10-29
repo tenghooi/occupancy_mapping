@@ -3,12 +3,12 @@
                    
 int main()
 {        
-    Eigen::Vector2d ray_origin {-1.5, -1.5};
-    Eigen::Vector2d ray_end {1, 1.3};
+    Eigen::Vector3d ray_origin {0, 0, 0};
+    Eigen::Vector3d ray_end {2.3, 1.21, 3};
 
-    std::vector<Eigen::Vector2i> traversed_voxels;
+    std::vector<Eigen::Vector3i> traversed_voxels;
 
-    RayCasting2D(ray_origin, ray_end, traversed_voxels);
+    RayCasting3D(ray_origin, ray_end, traversed_voxels);
 
     for(auto voxel:traversed_voxels)
     {

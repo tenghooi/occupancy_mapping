@@ -58,8 +58,8 @@ void RayCasting2D(const Eigen::Vector2d& ray_origin, const Eigen::Vector2d& ray_
     //
     // tDelta* must be positive like tMax*, i.e. tDelta* >= 0 and <= 1.
 
-    double tDeltaX {(dx != 0) ? stepX / dx : 100};
-    double tDeltaY {(dy != 0) ? stepY / dy : 100};
+    double tDeltaX = (dx != 0) ? stepX / dx : 100;
+    double tDeltaY = (dy != 0) ? stepY / dy : 100;
     
     // Add the ray origin to the traversed_voxels vector.
     traversed_voxels.push_back(current_voxel);
@@ -84,10 +84,42 @@ void RayCasting2D(const Eigen::Vector2d& ray_origin, const Eigen::Vector2d& ray_
     return;
 }
 
-/*
-void RayCasting3D()
+
+void RayCasting3D(const Eigen::Vector3d& ray_origin, const Eigen::Vector3d& ray_end,
+                  std::vector<Eigen::Vector3i>& traversed_voxels)
 {
-    
+// Initialization Step
+
+    Eigen::Vector3i current_voxel(std::floor(ray_origin.x()),
+                                  std::floor(ray_origin.y()),
+                                  std::floor(ray_origin.z()));
+    Eigen::Vector3i end_voxel(std::floor(ray_end.x()),
+                              std::floor(ray_end.y()),
+                              std::floor(ray_end.z()));
+    Eigen::Vector3d ray_direction = ray_end - ray_origin;
+
+    double dx = ray_direction.x();
+    double dy = ray_direction.y();
+    double dz = ray_direction.z();
+
+    int stepX = (dx == 0) ? 0 : (dx > 0) ? 1 : -1;
+    int stepY = (dy == 0) ? 0 : (dy > 0) ? 1 : -1;
+    int stepZ = (dz == 0) ? 0 : (dz > 0) ? 1 : -1;
+
+    double tMaxX = (dx > 0) ? (current_voxel.x() + stepX - ray_origin.x()) / dx : \
+                   (dx < 0) ? (current_voxel.x() - ray_origin.x()) / dx : 100;
+    double tMaxY = (dy > 0) ? (current_voxel.y() + stepY - ray_origin.y()) / dy : \
+                   (dy < 0) ? (current_voxel.y() - ray_origin.y()) / dy : 100;
+    double tMaxZ = (dz > 0) ? (current_voxel.z() + stepZ - ray_origin.z()) / dz : \
+                   (dz < 0) ? (current_voxel.z() - ray_origin.z()) / dz : 100;
+
+    double tDeltaX = (dx != 0) ? stepX / dx : 100;
+    double tDeltaY = (dy != 0) ? stepY / dy : 100;
+    double tDeltaZ = (dz != 0) ? stepZ / dz : 100;
+
+    traversed_voxels.push_back(current_voxel);
+
+// Traversal Step
     while(current_voxel != end_voxel)
     {
         if(tMaxX < tMaxY)
@@ -120,8 +152,9 @@ void RayCasting3D()
         traversed_voxels.push_back(current_voxel);
     }
     
+    return;
 }
-*/
+
 
 void RayCastingBresenham()
 {
