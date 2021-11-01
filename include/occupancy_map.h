@@ -25,6 +25,9 @@ struct Parameters
     double prob_occupancy;
     double prob_min;
     double prob_max;
+    // parameters for ray casting
+    double min_ray_length;
+    double max_ray_length;
     // intrinsic parameters of camera
     double center_x;
     double center_y;
@@ -33,6 +36,10 @@ struct Parameters
     // transformation from camera to body frame
     Eigen::Matrix4d T_Body_Camera;
     Eigen::Matrix4d T_D_B;
+    // update frequency
+    double update_occupancy_every_n_sec;
+
+    void SetParameters(const ros::NodeHandle& node);
 };
 
 struct QueueElement

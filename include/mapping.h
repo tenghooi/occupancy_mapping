@@ -5,18 +5,23 @@
 #include "occupancy_map.h"
 
 #include <iostream>
+#include <queue>
+#include <tuple>
 
+#include <opencv2/opencv.hpp>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/point_types.h>
 #include <pcl/common/projection_matrix.h>
 
-#include <ros.h>
+#include <ros/ros.h>
+#include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/Image.h>
+#include <visualization_msgs/Marker.h>
 
 template<class DepthMsgType, class PoseMsgType>
 class Mapping
@@ -28,8 +33,47 @@ private:
 
     bool new_msg_ = false;
 
-    
+    ros::Publisher occupancy_pub_;
+    ros::Publisher text_pub_;
+    ros::Subscriber transform_sub_;
+    ros::Subscriber depth_sub_;
 
+    ros::Timer update_mesh_timer_;
+
+    Eigen::Vector3d sync_pos_;
+    Eigen::Vector3d current_pos_;
+    Eigen::Vector3d raycast_origin_;
+    Eigen::Quaternion sync_q_;
+
+    std::queue<std::tuple<ros::Time, Eigen::Vector3d, Eigen::Quaternion>> transform_queue_;
+    std::queue<DepthMsgType> depth_image_queue;
+    DepthMsgType sync_depth;
+
+    cv::Mat img_[2];
+    Eigen::Matrix4d transform_;
+    Eigen::Matrix4d last_transform_;
+
+    uint image_count_ = 0;
+    uint esdf_count_ = 0;
+    uint total_ = 0;
+
+    std::vector<int> set_free_;
+    std::vector<int> set_occ_;
+
+public:
+    Mapping(ros::NodeHandle node);
+    ~Mapping();
+
+    void RayCastingProcess(int i, int part, int tt);
+
+    void DepthConversion();
+    void SynchronizationAndProcess();
+    void DepthCallBack(const DepthMsgType& depth_image);
+    void PoseCallBack(const PoseMsgType& pose_msge);
+
+    void Visualization(OccupancyMap* occupancy_map, bool global_viz, const std::string& text);
+    
+    void UpdateEsdfEvent(const ros::TimerEvent & /*event*/);
 };
 
 
