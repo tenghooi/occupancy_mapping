@@ -1,10 +1,14 @@
 #ifndef _OCCUPANCY_MAP_H_
 #define _OCCUPANCY_MAP_H_
 
+#include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cmath>
 #include <queue>
 #include <Eigen/Eigen>
+
+//#include <ros/ros.h>
 
 // Parameters for occupancy map
 struct Parameters
@@ -31,11 +35,19 @@ struct Parameters
     Eigen::Matrix4d T_D_B;
 };
 
+struct QueueElement
+{
+    Eigen::Vector3i point_;
+    double distance_;
+    bool operator<(const QueueElement& element) const 
+    {
+        return distance_ > element.distance_;
+    }
+};
 
 class OccupancyMap
 {
 private:
-    Parameters parameters_;
     // member attributes for occupancy update
     double logit_hit_;
     double logit_miss_;
@@ -54,13 +66,14 @@ private:
     std::vector<int> num_hit_;
     std::vector<int> num_miss_;
 
-    std::queue<int> occupancy_queue_;
+    std::queue<QueueElement> occupancy_queue_;
 
     // map properties
     Eigen::Vector3d origin_;
     int infinity_;
     int undefined_;
     double resolution_;
+    double resolution_inverse_;
     Eigen::Vector3i max_vec_, min_vec_, last_max_vec_, last_min_vec_;
 
 
@@ -76,19 +89,20 @@ public:
 
     // member methods for conversion between voxel, position and index
     void Vox2Pos(Eigen::Vector3i& voxel, Eigen::Vector3d& pos);
-    void Pos2Vox(Eigen::Vector3d& pos, Eigen::Vector3i& vox);
+    void Pos2Vox(Eigen::Vector3d& pos, Eigen::Vector3i& voxel);
     int Vox2Indx(Eigen::Vector3i& voxel);
     Eigen::Vector3i Indx2Vox(int& indx);
 
-    void SetParameters(double prob_hit, double prob_miss, \
+    void SetParameters(double prob_hit, double prob_miss, 
                        double prob_min, double prob_max, double prob_occupancy);
 
-    bool UpdateOccupancy(bool global_map);
+    bool CheckUpdate();
+    void UpdateOccupancy(bool global_map);
 
     // occupancy management
     int SetOccupancy(Eigen::Vector3d pos, int occ);
     int SetOccupancy(Eigen::Vector3i voxel, int occ);
-    int GetOccupancy(Eigen::Vector3i pos_id);
+    int GetOccupancy(Eigen::Vector3i voxel);
     int GetOccupancy(Eigen::Vector3d pos);
 
 
