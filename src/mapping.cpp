@@ -3,7 +3,8 @@
 template<class DepthMsgType, class PoseMsgType>
 Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
 {
-    parameters_.SetParameters(node);
+    SetNodeParameters(parameters_, node);
+    
     occupancy_map_ = new OccupancyMap(parameters_.bottom_left, 
                                       parameters_.resolution,
                                       parameters_.map_size);

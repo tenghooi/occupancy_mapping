@@ -1,22 +1,13 @@
-#include <iostream>
-#include "raycasting.h"
-                   
-int main()
+#include "mapping.h"
+
+int main(int argc, char **argv)
 {        
-    Eigen::Vector3d ray_origin {0, 0, 0};
-    Eigen::Vector3d ray_end {2.3, 1.21, 3};
+    ros::init(argc, argv, "occupancy_map");
+    ros::NodeHandle node("~");
 
-    std::vector<Eigen::Vector3i> traversed_voxels;
+    Mapping<sensor_msgs::PointCloud2::ConstPtr, geometry_msgs::TransformStamped::ConstPtr> occupancy_map (node);
 
-    RayCasting3D(ray_origin, ray_end, traversed_voxels);
-
-    for(auto voxel:traversed_voxels)
-    {
-        std::cout << voxel.transpose() << std::endl;
-    }
-
-    std::cout << "\nTotal number of voxels traversed: " << \
-                 traversed_voxels.size() << std::endl;
+    ros::spin();
 
     return 0;
 }

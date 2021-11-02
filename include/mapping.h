@@ -69,7 +69,7 @@ public:
     void DepthConversion();
     void SynchronizationAndProcess();
     void DepthCallBack(const DepthMsgType& depth_image);
-    void PoseCallBack(const PoseMsgType& pose_msge);
+    void PoseCallBack(const PoseMsgType& pose_msg);
 
     void Visualization(OccupancyMap* occupancy_map, bool global_viz, const std::string& text);
     
