@@ -8,39 +8,9 @@
 #include <queue>
 #include <Eigen/Eigen>
 
-//#include <ros/ros.h>
+#include <ros/ros.h>
 
-// Parameters for occupancy map
-struct Parameters
-{   
-    // resolution (in meters)
-    double resolution;
-    // boundary and size of map in vector form
-    Eigen::Vector3d bottom_left;
-    Eigen::Vector3d upper_right;
-    Eigen::Vector3d map_size;
-    // probabilty parameters for probabilistic occupancy map
-    double prob_hit;
-    double prob_miss;
-    double prob_occupancy;
-    double prob_min;
-    double prob_max;
-    // parameters for ray casting
-    double min_ray_length;
-    double max_ray_length;
-    // intrinsic parameters of camera
-    double center_x;
-    double center_y;
-    double focal_length_x;
-    double focal_length_y;
-    // transformation from camera to body frame
-    Eigen::Matrix4d T_Body_Camera;
-    Eigen::Matrix4d T_D_B;
-    // update frequency
-    double update_occupancy_every_n_sec;
-
-    void SetParameters(const ros::NodeHandle& node);
-};
+#include "parameters.h"
 
 struct QueueElement
 {
@@ -61,7 +31,7 @@ private:
     double min_logit_;
     double max_logit_;
     double occupancy_threshold_logit_;
-
+    // map sizes
     Eigen::Vector3d map_size_;
     Eigen::Vector3d min_range_;
     Eigen::Vector3d max_range_;
@@ -80,7 +50,6 @@ private:
     int infinity_;
     int undefined_;
     double resolution_;
-    double resolution_inverse_;
     Eigen::Vector3i max_vec_, min_vec_, last_max_vec_, last_min_vec_;
 
 

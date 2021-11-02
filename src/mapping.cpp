@@ -3,7 +3,8 @@
 template<class DepthMsgType, class PoseMsgType>
 Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
 {
-    parameters_.SetParameters(node);
+    SetNodeParameters(parameters_, node);
+
     occupancy_map_ = new OccupancyMap(parameters_.bottom_left, 
                                       parameters_.resolution,
                                       parameters_.map_size);
@@ -19,8 +20,8 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
     std::fill(set_free_.begin(), set_free_.end(), 0);
     std::fill(set_occ_.begin(), set_occ_.end(), 0);
 
-    transform_sub_ = node.subscribe("transform", 10, PoseCallBack, this);
-    depth_sub_ = node.subscribe("depth", 10, DepthCallBack, this);
+    transform_sub_ = node.subscribe("transform", 10, &PoseCallBack, this);
+    depth_sub_ = node.subscribe("depth", 10, &DepthCallBack, this);
 
     occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("OccupancyMap/occupancy_pointcloud", 1, true);
     text_pub_ = node.advertise<visualization_msgs::Marker>("OccupancyMap/text", 1, true);
