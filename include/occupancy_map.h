@@ -31,7 +31,7 @@ private:
     double min_logit_;
     double max_logit_;
     double occupancy_threshold_logit_;
-
+    // map sizes
     Eigen::Vector3d map_size_;
     Eigen::Vector3d min_range_;
     Eigen::Vector3d max_range_;
@@ -50,7 +50,6 @@ private:
     int infinity_;
     int undefined_;
     double resolution_;
-    double resolution_inverse_;
     Eigen::Vector3i max_vec_, min_vec_, last_max_vec_, last_min_vec_;
 
 
