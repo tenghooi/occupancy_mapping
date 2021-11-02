@@ -4,17 +4,9 @@ cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 project(occupancy_mapping VERSION 0.1.0)
 
 # Specify the C++ standard
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_BUILD_TYPE "Release")
-
-# Create bin folder
-if(NOT EXISTS ${CMAKE_HOME_DIRECTORY}/bin)
-  file(MAKE_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin)
-endif()
-
-# Set destination of executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin)
 
 # Find Packages
 find_package(catkin REQUIRED COMPONENTS
