@@ -19,7 +19,7 @@
 */
 
 void RayCasting2D(const Eigen::Vector2d& ray_origin, const Eigen::Vector2d& ray_end,
-                  std::vector<Eigen::Vector2i>& traversed_voxels)
+                  std::vector<Eigen::Vector2d>& traversed_voxels)
 {
 // Initialization Step
     
@@ -86,7 +86,7 @@ void RayCasting2D(const Eigen::Vector2d& ray_origin, const Eigen::Vector2d& ray_
 
 
 void RayCasting3D(const Eigen::Vector3d& ray_origin, const Eigen::Vector3d& ray_end,
-                  std::vector<Eigen::Vector3i>& traversed_voxels)
+                  std::vector<Eigen::Vector3d>& traversed_voxels)
 {
 // Initialization Step
 
