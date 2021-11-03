@@ -43,11 +43,11 @@ private:
     Eigen::Vector3d sync_pos_;
     Eigen::Vector3d current_pos_;
     Eigen::Vector3d raycast_origin_;
-    Eigen::Quaternion sync_q_;
+    Eigen::Quaterniond sync_q_;
 
     std::queue<std::tuple<ros::Time, Eigen::Vector3d, Eigen::Quaternion>> transform_queue_;
-    std::queue<DepthMsgType> depth_image_queue;
-    DepthMsgType sync_depth;
+    std::queue<DepthMsgType> depth_image_queue_;
+    DepthMsgType sync_depth_;
 
     cv::Mat img_[2];
     Eigen::Matrix4d transform_;
@@ -64,16 +64,16 @@ public:
     Mapping(ros::NodeHandle node);
     ~Mapping();
 
-    void RayCastingProcess(int i, int part, int tt);
+    void RayCastingProcess(int number_depth_points, int tt);
 
     void DepthConversion();
     void SynchronizationAndProcess();
-    void DepthCallBack(const DepthMsgType& depth_image);
+    void DepthCallBack(const DepthMsgType& depth_image_msg);
     void PoseCallBack(const PoseMsgType& pose_msg);
 
-    void Visualization(OccupancyMap* occupancy_map, bool global_viz, const std::string& text);
+    void Visualization(OccupancyMap* occupancy_map, bool global_vis, const std::string& text);
     
-    void UpdateEsdfEvent(const ros::TimerEvent & /*event*/);
+    void UpdateOccupancyEvent(const ros::TimerEvent & /*event*/);
 };
 
 
