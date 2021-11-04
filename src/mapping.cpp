@@ -41,6 +41,7 @@ template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_points, int tt)
 {
     Eigen::Vector3d half = {0.5, 0.5, 0.5};
+    
     for(int indx = 0; indx < number_depth_points; indx++)
     {
         std::vector<Eigen::Vector3d> traversed_voxels;
@@ -132,7 +133,74 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
 template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
 {
+    ros::Time depth_msg_time;
+    double time_delay = 3e-3;
 
+    while(!depth_image_queue_.empty())
+    {
+        bool new_pose = false;
+        depth_msg_time = depth_image_queue_.front()->header.stamp;
+
+        while (transform_queue_.size() > 1 && 
+               std::get<0>(transform_queue_.front()) <= depth_msg_time + ros::Duration(time_delay))
+        {
+            sync_pos_ = std::get<1>(transform_queue_.front());
+            sync_q_ = std::get<2>(transform_queue_.front());
+            transform_queue_.pop();
+
+            new_pose = true;
+        }
+
+        if (transform_queue_.empty() ||
+            std::get<0>(transform_queue_.front()) <= depth_msg_time + ros::Duration(time_delay))
+        {
+            break;
+        }
+
+        if (!new_pose)
+        {
+            depth_image_queue_.pop();
+            continue;
+        }
+
+        new_msg_ = true;  
+
+        if (parameters_.use_depth_filter) {last_transform_ = transform_;}
+        // 4x4 transformation matrix
+        transform_.block<3, 3>(0, 0) = sync_q_.toRotationMatrix();
+        transform_.block<3, 1>(0, 3) = sync_pos_;
+        transform_(3, 0) = 0;
+        transform_(3, 1) = 0;
+        transform_(3, 2) = 0;
+        transform_(3, 3) = 1;
+        transform_ = transform_ * parameters_.T_D_B * parameters_.T_Body_Camera;
+
+        raycast_origin_ = Eigen::Vector3d(transform_(0, 3), transform_(1, 3), transform_(2, 3))/transform_(3, 3);
+
+        if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) 
+        {
+            DepthConversion();
+        } 
+        else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        {
+            sensor_msgs::PointCloud2::ConstPtr tmp = depth_queue_.front();
+            pcl::fromROSMsg(*tmp, cloud_);
+        }
+
+        if (cloud_.points.size()==0) 
+        {
+            depth_queue_.pop();
+            continue;
+        }
+
+        {
+        int tt = ++total_;
+        RayCastingProcess(cloud_.points.size(), tt);
+        }
+        
+        depth_image_queue_.pop();
+
+    }
 }
 
 template<class DepthMsgType, class PoseMsgType>
@@ -151,6 +219,7 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
     pose << pose_msg->pose.position.x, 
             pose_msg->pose.position.y,
             pose_msg->pose.position.z;
+
     q << pose_msg->pose.orientation.w,
          pose_msg->pose.orientation.x,
          pose_msg->pose.orientation.y,

@@ -45,7 +45,7 @@ private:
     Eigen::Vector3d raycast_origin_;
     Eigen::Quaterniond sync_q_;
 
-    std::queue<std::tuple<ros::Time, Eigen::Vector3d, Eigen::Quaternion>> transform_queue_;
+    std::queue<std::tuple<ros::Time, Eigen::Vector3d, Eigen::Quaterniond>> transform_queue_;
     std::queue<DepthMsgType> depth_image_queue_;
     DepthMsgType sync_depth_;
 
