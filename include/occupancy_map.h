@@ -9,6 +9,7 @@
 #include <Eigen/Eigen>
 
 #include <ros/ros.h>
+#include <sensor_msgs/PointCloud.h>
 
 #include "parameters.h"
 
@@ -81,7 +82,9 @@ public:
     int GetOccupancy(Eigen::Vector3i voxel);
     int GetOccupancy(Eigen::Vector3d pos);
 
+    void SetOriginalRange();
 
+    void GetPointCloud(sensor_msgs::PointCloud& point_cloud);
 };
 
 

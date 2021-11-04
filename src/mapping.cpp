@@ -27,7 +27,7 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
     text_pub_ = node.advertise<visualization_msgs::Marker>("OccupancyMap/text", 1, true);
 
     update_mesh_timer_ = node.createTimer(ros::Duration(parameters_.update_occupancy_every_n_sec),
-                                          &UpdateEsdfEvent, this);
+                                          &UpdateOccupancyEvent, this);
     
 }
 
@@ -41,12 +41,10 @@ template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_points, int tt)
 {
     Eigen::Vector3d half = {0.5, 0.5, 0.5};
-    
+
     for(int indx = 0; indx < number_depth_points; indx++)
     {
         std::vector<Eigen::Vector3d> traversed_voxels;
-
-        if(indx > cloud_.points.size()) break;
 
         pcl::PointXYZ point = cloud_.points[indx];
         int count = 0;
@@ -56,8 +54,7 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
 
         Eigen::Vector4d tmp_point = transform_ * 
                               Eigen::Vector4d(point.x, point.y, point.z, 1);
-        Eigen::Vector3d transformed_point = {tmp_point[0], tmp_point[1], tmp_point[2]} 
-                                                / tmp_point[3];
+        Eigen::Vector3d transformed_point = Eigen::Vector3d(tmp_point[0], tmp_point[1], tmp_point[2]) / tmp_point[3];
 
         int tmp_indx;
         double length = (transformed_point - raycast_origin_).norm();
@@ -86,9 +83,7 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
 
         RayCasting3D(raycast_origin_/parameters_.resolution,
                      transformed_point/parameters_.resolution,
-                     parameters_.bottom_left/parameters_.resolution,
-                     parameters_.upper_right/parameters_.resolution,
-                     &traversed_voxels);
+                     traversed_voxels);
         
         // Set occupancy 0 for all traversed voxels except the measured one.
         for (size_t i = traversed_voxels.size() - 2; i >= 0; i--)
@@ -96,9 +91,9 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
             Eigen::Vector3d current_voxel = (traversed_voxels[i] + half) * parameters_.resolution;
 
             length = (current_voxel - raycast_origin_).norm();
-            if (length < parameters_.min_ray_length_)
+            if (length < parameters_.min_ray_length)
                     break;
-            if (length > parameters_.max_ray_length_)
+            if (length > parameters_.max_ray_length)
                 continue;
 
             int tmp_indx;
@@ -181,15 +176,15 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         {
             DepthConversion();
         } 
-        else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        /* else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
         {
             sensor_msgs::PointCloud2::ConstPtr tmp = depth_queue_.front();
             pcl::fromROSMsg(*tmp, cloud_);
-        }
+        } */
 
         if (cloud_.points.size()==0) 
         {
-            depth_queue_.pop();
+            depth_image_queue_.pop();
             continue;
         }
 
@@ -223,7 +218,7 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
     q << pose_msg->pose.orientation.w,
          pose_msg->pose.orientation.x,
          pose_msg->pose.orientation.y,
-         pose_msg->pose.orientation.z);
+         pose_msg->pose.orientation.z;
 
     transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pose, q));
 
@@ -234,11 +229,72 @@ void Mapping<DepthMsgType, PoseMsgType>::Visualization(OccupancyMap* occupancy_m
                                                        bool global_vis,
                                                        const std::string& text)
 {
-    
+    if (occupancy_map_ != nullptr)
+    {
+        std::cout << "Visualization" << std::endl;
+
+        if(global_vis) occupancy_map_->SetOriginalRange();
+
+        sensor_msgs::PointCloud point_cloud;
+        occupancy_map_->GetPointCloud(point_cloud);
+        occupancy_pub_.publish(point_cloud);
+    }
+
+    if (!text.empty()) {
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "world";
+        marker.header.stamp = ros::Time::now();
+        marker.id = 3456;
+        marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        marker.action = visualization_msgs::Marker::MODIFY;
+
+        marker.pose.position.x = 8.0;
+        marker.pose.position.y = 2.0;
+        marker.pose.position.z = 3.0;
+        marker.pose.orientation.x = 0.0;
+        marker.pose.orientation.y = 0.0;
+        marker.pose.orientation.z = 0.0;
+        marker.pose.orientation.w = 1.0;
+
+        marker.text = text;
+
+        marker.scale.x = 0.3;
+        marker.scale.y = 0.3;
+        marker.scale.z = 0.6;
+
+        marker.color.r = 0.0f;
+        marker.color.g = 0.0f;
+        marker.color.b = 1.0f;
+        marker.color.a = 1.0f;
+        text_pub_.publish(marker);
+     }
 }
 
 template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::UpdateOccupancyEvent(const ros::TimerEvent&)
 {
+    if (!new_msg_) return;
+
+    new_msg_ = false;
+    current_pos_ = sync_pos_;
+
+    esdf_count_++;
+    std::cout << "Running " << esdf_count_ << " updates." << std::endl;
+
+    if(occupancy_map_->CheckUpdate())
+    {
+        if(parameters_.global_update)
+        {
+            occupancy_map_->SetOriginalRange();
+        }
+
+        occupancy_map_->UpdateOccupancy(parameters_.global_update);
+    }
+
+    if (parameters_.visualize_every_n_updates != 0 &&
+        esdf_count_ % parameters_.visualize_every_n_updates == 0)
+    {
+        Visualization(occupancy_map_, parameters_.global_vis, "");
+    }
 
 }

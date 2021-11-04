@@ -154,3 +154,36 @@ int OccupancyMap::GetOccupancy(Eigen::Vector3d pos)
     return Exist(Vox2Indx(voxel));
 }
 
+void OccupancyMap::SetOriginalRange()
+{
+    min_vec_= Eigen::Vector3i::Zero();
+    max_vec_ << grid_size_(0) - 1, grid_size_(1) - 1, grid_size_(2) - 1;
+    last_min_vec_ = min_vec_;
+    last_max_vec_ = max_vec_;
+}
+
+void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
+{
+    point_cloud.header.frame_id = "world";
+    point_cloud.points.clear();
+
+    for (size_t x = min_vec_[0]; x <= max_vec_[0]; ++x)
+        for (size_t y = min_vec_[1]; y <= max_vec_[1]; ++y)
+            for (size_t z = min_vec_[2]; z <= max_vec_[2]; ++z) 
+            {
+                Eigen::Vector3i tmp_voxel = {x, y, z};
+
+                if (!Exist(Vox2Indx(tmp_voxel)))
+                    continue;
+
+                Eigen::Vector3d pos;
+                Vox2Pos(tmp_voxel, pos);
+
+                geometry_msgs::Point32 p;
+                p.x = pos(0);
+                p.y = pos(1);
+                p.z = pos(2);
+                
+                point_cloud.points.push_back(p);
+            }
+}

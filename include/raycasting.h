@@ -23,8 +23,8 @@ void RayCasting2D(const Eigen::Vector2d& ray_origin, const Eigen::Vector2d& ray_
 {
 // Initialization Step
     
-    Eigen::Vector2i current_voxel(std::floor(ray_origin.x()), std::floor(ray_origin.y()));
-    Eigen::Vector2i end_voxel(std::floor(ray_end.x()), std::floor(ray_end.y()));
+    Eigen::Vector2d current_voxel(std::floor(ray_origin.x()), std::floor(ray_origin.y()));
+    Eigen::Vector2d end_voxel(std::floor(ray_end.x()), std::floor(ray_end.y()));
     Eigen::Vector2d ray_direction = ray_end - ray_origin;
 
     double dx = ray_direction.x();
@@ -61,6 +61,8 @@ void RayCasting2D(const Eigen::Vector2d& ray_origin, const Eigen::Vector2d& ray_
     double tDeltaX = (dx != 0) ? stepX / dx : 100;
     double tDeltaY = (dy != 0) ? stepY / dy : 100;
     
+    traversed_voxels.clear();
+    
     // Add the ray origin to the traversed_voxels vector.
     traversed_voxels.push_back(current_voxel);
 
@@ -90,10 +92,10 @@ void RayCasting3D(const Eigen::Vector3d& ray_origin, const Eigen::Vector3d& ray_
 {
 // Initialization Step
 
-    Eigen::Vector3i current_voxel(std::floor(ray_origin.x()),
+    Eigen::Vector3d current_voxel(std::floor(ray_origin.x()),
                                   std::floor(ray_origin.y()),
                                   std::floor(ray_origin.z()));
-    Eigen::Vector3i end_voxel(std::floor(ray_end.x()),
+    Eigen::Vector3d end_voxel(std::floor(ray_end.x()),
                               std::floor(ray_end.y()),
                               std::floor(ray_end.z()));
     Eigen::Vector3d ray_direction = ray_end - ray_origin;

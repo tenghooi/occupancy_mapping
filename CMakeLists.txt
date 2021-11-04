@@ -1,12 +1,10 @@
-cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.3)
 
 # Create Project - set the project name and version
-project(occupancy_mapping VERSION 0.1.0)
+project(occupancy_mapping)
 
-# Specify the C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_CXX_FLAGS "-std=c++17 ${CMAKE_CXX_FLAGS} -O3 -Wall -pthread") # -Wextra -Werror
+set(CMAKE_BUILD_TYPE "RELEASE")
 
 # Find Packages
 find_package(catkin REQUIRED COMPONENTS
@@ -17,8 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
              tf
              cv_bridge
              )   
+
 find_package(PCL 1.8 REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
+set(Eigen3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 
 catkin_package(
   INCLUDE_DIRS include
@@ -27,13 +28,14 @@ catkin_package(
 # Include header files
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-
 include_directories(
   include
   SYSTEM
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
-  ${PCL_INCLUDE_DIRS})
+  ${PCL_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
 
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
@@ -42,10 +44,14 @@ add_definitions(${PCL_DEFINITIONS})
 add_executable(occupancy_mapping 
                src/main.cpp
                src/occupancy_map.cpp
+               src/mapping.cpp
               )
+
 target_link_libraries(occupancy_mapping 
                       ${PCL_LIBRARIES}
-                      ${catkin_LIBRARIES})
+                      ${catkin_LIBRARIES}
+                      ${OpenCV_LIBS}
+                      )
 # target_link_libraries(occupancy_mapping ${PCL_LIBRARIES} Eigen3::Eigen)
 
 
