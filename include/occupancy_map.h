@@ -1,5 +1,5 @@
-#ifndef _OCCUPANCY_MAP_H_
-#define _OCCUPANCY_MAP_H_
+#ifndef OCCUPANCY_MAP_H_
+#define OCCUPANCY_MAP_H_
 
 #include <iostream>
 #include <algorithm>
@@ -58,7 +58,7 @@ public:
     int grid_total_size_;
 
     OccupancyMap(Eigen::Vector3d origin, double resolution, Eigen::Vector3d map_size);
-    ~OccupancyMap();
+    ~OccupancyMap(){};
 
     // log odds function for occupancy update
     double Logit(const double& prob) const;

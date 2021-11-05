@@ -167,9 +167,9 @@ void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
     point_cloud.header.frame_id = "world";
     point_cloud.points.clear();
 
-    for (size_t x = min_vec_[0]; x <= max_vec_[0]; ++x)
-        for (size_t y = min_vec_[1]; y <= max_vec_[1]; ++y)
-            for (size_t z = min_vec_[2]; z <= max_vec_[2]; ++z) 
+    for (int x = min_vec_[0]; x <= max_vec_[0]; ++x)
+        for (int y = min_vec_[1]; y <= max_vec_[1]; ++y)
+            for (int z = min_vec_[2]; z <= max_vec_[2]; ++z) 
             {
                 Eigen::Vector3i tmp_voxel = {x, y, z};
 

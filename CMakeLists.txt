@@ -14,9 +14,11 @@ find_package(catkin REQUIRED COMPONENTS
              visualization_msgs
              tf
              cv_bridge
+             pcl_ros
+             pcl_conversions
              )   
 
-find_package(PCL 1.8 REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 set(Eigen3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
@@ -42,15 +44,22 @@ add_definitions(${PCL_DEFINITIONS})
 
 # Add executable
 add_executable(occupancy_mapping 
-               src/main.cpp
+               include/parameters.h
+               src/parameters.cpp
+               include/raycasting.h
+               src/raycasting.cpp
+               include/occupancy_map.h
                src/occupancy_map.cpp
-               src/mapping.cpp
+               include/mapping.h
+               
+               src/main.cpp
               )
 
 target_link_libraries(occupancy_mapping 
-                      ${PCL_LIBRARIES}
                       ${catkin_LIBRARIES}
+                      ${PCL_LIBRARIES}
                       ${OpenCV_LIBS}
+                      Eigen3::Eigen
                       )
 # target_link_libraries(occupancy_mapping ${PCL_LIBRARIES} Eigen3::Eigen)
 

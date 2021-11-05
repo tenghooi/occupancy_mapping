@@ -42,14 +42,14 @@
         <param name="depth_filter_margin" value="0"/>
 
         <!-- global / local -->
-        <param name="global_map" value="false"/>
-        <param name="global_update" value="false"/>
-        <param name="global_vis" value="false"/>
+        <param name="global_map" value="true"/>
+        <param name="global_update" value="true"/>
+        <param name="global_vis" value="true"/>
 
         <param name="update_occupancy_every_n_sec" value="0.1"/>
         <!-- visulization -->
         <!--0 for no visulize-->
-        <param name="visualize_every_n_updates" value="10"/>
+        <param name="visualize_every_n_updates" value="2"/>
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
