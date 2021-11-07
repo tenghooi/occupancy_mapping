@@ -15,7 +15,7 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
 
     parameters.bottom_left << bottom_left_x, bottom_left_y, bottom_left_z;
     parameters.upper_right << upper_right_x, upper_right_y, upper_right_z;
-    parameters.map_size = parameters.bottom_left - parameters.upper_right;
+    parameters.map_size = parameters.upper_right - parameters.bottom_left;
 
     node.param<double>("prob_hit", parameters.prob_hit, 0.70);
     node.param<double>("prob_miss", parameters.prob_miss, 0.30);

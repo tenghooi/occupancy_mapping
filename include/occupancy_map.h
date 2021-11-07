@@ -70,8 +70,8 @@ public:
     int Vox2Indx(Eigen::Vector3i& voxel);
     Eigen::Vector3i Indx2Vox(int& indx);
 
-    void SetParameters(double prob_hit, double prob_miss, 
-                       double prob_min, double prob_max, double prob_occupancy);
+    void SetParameters(const double& prob_hit, const double& prob_miss, 
+                       const double& prob_min, const double& prob_max, const double& prob_occupancy);
 
     bool CheckUpdate();
     void UpdateOccupancy(bool global_map);

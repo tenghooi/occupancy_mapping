@@ -1,5 +1,5 @@
-#ifndef MAPPING_H_
-#define MAPPING_H_
+#ifndef _MAPPING_H_
+#define _MAPPING_H_
 
 #include "raycasting.h"
 #include "occupancy_map.h"
@@ -102,8 +102,8 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
     transform_sub_ = node.subscribe("odometry", 10, &Mapping::PoseCallBack, this);
     depth_sub_ = node.subscribe("depth", 10, &Mapping::DepthCallBack, this);
 
-    occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("OccupancyMap/occupancy_pointcloud", 1, true);
-    text_pub_ = node.advertise<visualization_msgs::Marker>("OccupancyMap/text", 1, true);
+    occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("occupancy_pointcloud", 1, true);
+    text_pub_ = node.advertise<visualization_msgs::Marker>("text", 1, true);
 
     update_mesh_timer_ = node.createTimer(ros::Duration(parameters_.update_occupancy_every_n_sec),
                                           &Mapping::UpdateOccupancyEvent, this);
@@ -220,53 +220,57 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
     cloud_.clear();
     double uu, vv;
 
-    uint16_t *row_ptr;
-     int cols = current_image.cols, rows = current_image.rows;
-     if (!parameters_.use_depth_filter) 
-     {
-          for (int v = 0; v < rows; v++) 
-          {
-               row_ptr = current_image.ptr<uint16_t>(v);
-               for (int u = 0; u < cols; u++) 
-               {
+    uint16_t* row_ptr;
+    int cols = current_image.cols, rows = current_image.rows;
+    if (!parameters_.use_depth_filter) 
+    {
+        for (int v = 0; v < rows; v++) 
+        {
+            row_ptr = current_image.ptr<uint16_t>(v);
+            for (int u = 0; u < cols; u++) 
+            {
+                depth = (*row_ptr++)/k_depth_scaling_factor;
+                pcl::PointXYZ point;
+                point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
+                point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
+                point.z = depth;
+                cloud_.push_back(point);
+            }
+        }
+    } 
+    else 
+    {
+        if (image_count_!=1) 
+        {
+            Eigen::Vector4d coord_h;
+            Eigen::Vector3d coord;
+            for (int v = parameters_.depth_filter_margin; v < rows - parameters_.depth_filter_margin; v++) 
+            {
+                row_ptr = current_image.ptr<uint16_t>(v) + parameters_.depth_filter_margin;
+                for (int u = parameters_.depth_filter_margin; u < cols - parameters_.depth_filter_margin; u++) 
+                {
                     depth = (*row_ptr++)/k_depth_scaling_factor;
                     pcl::PointXYZ point;
                     point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
                     point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
                     point.z = depth;
-                    cloud_.push_back(point);
-               }
-          }
-     } else 
-     {
-          if (image_count_!=1) {
-               Eigen::Vector4d coord_h;
-               Eigen::Vector3d coord;
-               for (int v = parameters_.depth_filter_margin; v < rows - parameters_.depth_filter_margin; v++) {
-                    row_ptr = current_image.ptr<uint16_t>(v) + parameters_.depth_filter_margin;
-                    for (int u = parameters_.depth_filter_margin; u < cols - parameters_.depth_filter_margin; u++) {
-                         depth = (*row_ptr++)/k_depth_scaling_factor;
-                         pcl::PointXYZ point;
-                         point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
-                         point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
-                         point.z = depth;
-                         if (depth > parameters_.filter_max_depth || depth < parameters_.filter_min_depth)
-                              continue;
-                         coord_h = last_transform_.inverse()*transform_*Eigen::Vector4d(point.x, point.y, point.z, 1);
-                         coord = Eigen::Vector3d(coord_h(0), coord_h(1), coord_h(2))/coord_h(3);
-                         uu = coord.x()*parameters_.focal_length_x/coord.z() + parameters_.center_x;
-                         vv = coord.y()*parameters_.focal_length_y/coord.z() + parameters_.center_y;
-                         if (uu >= 0 && uu < cols && vv >= 0 && vv < rows) {
+                    if (depth > parameters_.filter_max_depth || depth < parameters_.filter_min_depth)
+                        continue;
+                    coord_h = last_transform_.inverse()*transform_*Eigen::Vector4d(point.x, point.y, point.z, 1);
+                    coord = Eigen::Vector3d(coord_h(0), coord_h(1), coord_h(2))/coord_h(3);
+                    uu = coord.x()*parameters_.focal_length_x/coord.z() + parameters_.center_x;
+                    vv = coord.y()*parameters_.focal_length_y/coord.z() + parameters_.center_y;
+                    if (uu >= 0 && uu < cols && vv >= 0 && vv < rows) {
 //                        getInterpolation(last_img, uu, vv)
-                              if (fabs(last_image.at<uint16_t>((int) vv, (int) uu)/k_depth_scaling_factor - coord.z())
-                                  < parameters_.filter_tolerance) {
-                                   cloud_.push_back(point);
-                              }
-                         } //else cloud_.push_back(point_);
-                    }
-               }
-          }
-     }
+                        if (fabs(last_image.at<uint16_t>((int) vv, (int) uu)/k_depth_scaling_factor - coord.z())
+                            < parameters_.filter_tolerance) {
+                            cloud_.push_back(point);
+                        }
+                    } //else cloud_.push_back(point_);
+                }
+            }
+        }
+    }
 }
 
 template<class DepthMsgType, class PoseMsgType>
@@ -355,17 +359,18 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
     Eigen::Vector3d pos;
     Eigen::Quaterniond q;
 
-    pos << pose_msg->pose.pose.position.x, 
+   /*pos << pose_msg->pose.pose.position.x, 
             pose_msg->pose.pose.position.y,
             pose_msg->pose.pose.position.z;
 
     q = Eigen::Quaterniond (pose_msg->pose.pose.orientation.w,
                             pose_msg->pose.pose.orientation.x,
                             pose_msg->pose.pose.orientation.y,
-                            pose_msg->pose.pose.orientation.z);
+                            pose_msg->pose.pose.orientation.z);*/
+    pos << 0, 0, 0;
+    q = Eigen::Quaterniond (1, 0, 0, 0);
 
     transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pos, q));
-
 }
 
 template<class DepthMsgType, class PoseMsgType>
