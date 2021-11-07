@@ -71,9 +71,9 @@ Eigen::Vector3i OccupancyMap::Indx2Vox(int& indx)
                            indx % grid_size_[2]);
 }
 
-void OccupancyMap::SetParameters(double prob_hit, double prob_miss, 
-                                 double prob_min, double prob_max, 
-                                 double prob_occupancy)
+void OccupancyMap::SetParameters(const double& prob_hit, const double& prob_miss, 
+                                 const double& prob_min, const double& prob_max, 
+                                 const double& prob_occupancy)
 {
     logit_hit_ = Logit(prob_hit);
     logit_miss_ = Logit(prob_miss);

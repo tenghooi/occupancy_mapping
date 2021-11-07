@@ -7,10 +7,10 @@
         <!-- Used in array structures only -->
         <param name="bottom_left_x" value="-20.0"/>
         <param name="bottom_left_y" value="-20.0"/>
-        <param name="bottom_left_z" value="-1.6"/>
+        <param name="bottom_left_z" value="-2"/>
         <param name="upper_right_x" value="+20.0"/>
         <param name="upper_right_y" value="+20.0"/>
-        <param name="upper_right_z" value="+2"/>
+        <param name="upper_right_z" value="+5"/>
 
         <!-- probabilistic grid map -->
         <param name="prob_hit" value="0.70"/>
@@ -28,10 +28,10 @@
         <!--        <param name="center_y" value="236.743210"/>-->
         <!--        <param name="focal_x" value="385.754486"/>-->
         <!--        <param name="focal_y" value="385.754486"/>-->
-        <param name="center_x" value="3.2247735741936430e+02"/>
-        <param name="center_y" value="2.3707634648111778e+02"/>
-        <param name="focal_length_x" value="3.8445808939187248e+02"/>
-        <param name="focal_length_y" value="3.8398275569654390e+02"/>
+        <param name="center_x" value="322.47735741936430"/>
+        <param name="center_y" value="237.07634648111778"/>
+        <param name="focal_length_x" value="384.45808939187248"/>
+        <param name="focal_length_y" value="383.98275569654390"/>
 
         <!--depth_filter -->
         <param name="use_depth_filter" value="true"/>
@@ -49,12 +49,12 @@
         <param name="update_occupancy_every_n_sec" value="0.1"/>
         <!-- visulization -->
         <!--0 for no visulize-->
-        <param name="visualize_every_n_updates" value="2"/>
+        <param name="visualize_every_n_updates" value="1"/>
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
         <remap from="~depth" to="/camera/depth/image_rect_raw"/>
-        <remap from="~transform" to="/vins_estimator/camera_pose"/>
+        <remap from="~odometry" to="/camera/depth/image_rect_raw/compressed"/>
 
     </node>
 
