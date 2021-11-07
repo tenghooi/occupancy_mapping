@@ -99,7 +99,7 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
     std::fill(set_free_.begin(), set_free_.end(), 0);
     std::fill(set_occ_.begin(), set_occ_.end(), 0);
 
-    transform_sub_ = node.subscribe("transform", 10, &Mapping::PoseCallBack, this);
+    transform_sub_ = node.subscribe("odometry", 10, &Mapping::PoseCallBack, this);
     depth_sub_ = node.subscribe("depth", 10, &Mapping::DepthCallBack, this);
 
     occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("OccupancyMap/occupancy_pointcloud", 1, true);
@@ -352,19 +352,19 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth
 template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_msg)
 {
-    Eigen::Vector3d pose;
+    Eigen::Vector3d pos;
     Eigen::Quaterniond q;
 
-    pose << pose_msg->transform.translation.x, 
-            pose_msg->transform.translation.y,
-            pose_msg->transform.translation.z;
+    pos << pose_msg->pose.pose.position.x, 
+            pose_msg->pose.pose.position.y,
+            pose_msg->pose.pose.position.z;
 
-    q = Eigen::Quaterniond (pose_msg->transform.rotation.w,
-                            pose_msg->transform.rotation.x,
-                            pose_msg->transform.rotation.y,
-                            pose_msg->transform.rotation.z);
+    q = Eigen::Quaterniond (pose_msg->pose.pose.orientation.w,
+                            pose_msg->pose.pose.orientation.x,
+                            pose_msg->pose.pose.orientation.y,
+                            pose_msg->pose.pose.orientation.z);
 
-    transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pose, q));
+    transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pos, q));
 
 }
 

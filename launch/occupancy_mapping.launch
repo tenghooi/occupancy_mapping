@@ -54,7 +54,7 @@
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
         <remap from="~depth" to="/camera/depth/image_rect_raw"/>
-        <remap from="~transform" to="/vins_estimator/camera_pose"/>
+        <remap from="~odometry" to="/vins_estimator/camera_pose"/>
 
     </node>
 
