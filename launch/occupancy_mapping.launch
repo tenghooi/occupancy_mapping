@@ -21,7 +21,7 @@
 
         <!-- raycasting parameters -->
         <param name="min_ray_length" value="0.3"/>
-        <param name="max_ray_length" value="3.0"/>
+        <param name="max_ray_length" value="5.0"/>
 
         <!-- needed when using depth image-->
         <!--        <param name="center_x" value="323.120483"/>-->
@@ -54,7 +54,7 @@
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
         <remap from="~depth" to="/camera/depth/image_rect_raw"/>
-        <remap from="~odometry" to="/camera/depth/image_rect_raw/compressed"/>
+        <remap from="~odometry" to="/camera/odom/sample"/>
 
     </node>
 
