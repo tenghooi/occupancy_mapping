@@ -2,7 +2,7 @@
 #include <ctime>
 
 OccupancyMap::OccupancyMap(Eigen::Vector3d origin, double resolution, Eigen::Vector3d map_size)
-    : origin_(origin), resolution_(resolution), map_size_(map_size)
+    : map_size_(map_size), origin_(origin), resolution_(resolution)
 {
     grid_size_[0] = ceil(map_size_[0] / resolution_);
     grid_size_[1] = ceil(map_size_[1] / resolution_);
@@ -164,7 +164,7 @@ void OccupancyMap::SetOriginalRange()
 
 void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
 {
-    point_cloud.header.frame_id = "world";
+    point_cloud.header.frame_id = "camera_link";
     point_cloud.points.clear();
 
     for (int x = min_vec_[0]; x <= max_vec_[0]; ++x)
