@@ -53,7 +53,7 @@
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
-        <remap from="~depth" to="/camera/depth/image_rect_raw"/>
+        <remap from="~depth" to="/cam1/depth/image_rect_raw"/>
         <remap from="~odometry" to="/camera/odom/sample"/>
 
     </node>
