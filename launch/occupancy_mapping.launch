@@ -10,18 +10,18 @@
         <param name="bottom_left_z" value="-2"/>
         <param name="upper_right_x" value="+20.0"/>
         <param name="upper_right_y" value="+20.0"/>
-        <param name="upper_right_z" value="+5"/>
+        <param name="upper_right_z" value="+20"/>
 
         <!-- probabilistic grid map -->
         <param name="prob_hit" value="0.70"/>
-        <param name="prob_miss" value="0.25"/>
-        <param name="prob_min" value="0.12"/>
-        <param name="prob_max" value="0.97"/>
+        <param name="prob_miss" value="0.15"/>
+        <param name="prob_min" value="0.05"/>
+        <param name="prob_max" value="0.92"/>
         <param name="prob_occupancy" value="0.85"/>
 
         <!-- raycasting parameters -->
-        <param name="min_ray_length" value="0.3"/>
-        <param name="max_ray_length" value="5.0"/>
+        <param name="min_ray_length" value="0.2"/>
+        <param name="max_ray_length" value="6.0"/>
 
         <!-- needed when using depth image-->
         <!--        <param name="center_x" value="323.120483"/>-->
@@ -35,9 +35,9 @@
 
         <!--depth_filter -->
         <param name="use_depth_filter" value="true"/>
-        <param name="filter_max_depth" value="6.0"/>
-        <param name="filter_min_depth" value="0.1"/>
-        <param name="filter_tolerance" value="0.1"/>
+        <param name="filter_max_depth" value="7.0"/>
+        <param name="filter_min_depth" value="0.2"/>
+        <param name="filter_tolerance" value="0.05"/>
         <!--unit: pixel-->
         <param name="depth_filter_margin" value="0"/>
 
@@ -53,8 +53,9 @@
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
-        <remap from="~depth" to="/cam1/depth/image_rect_raw"/>
-        <remap from="~odometry" to="/camera/odom/sample"/>
+	<remap from="~depth" to="/d435i/depth/image_rect_raw"/>
+        <!-- remap from="~depth" to="/camera/depth/image_rect_raw"/ -->
+        <remap from="~odometry" to="/t265/odom/sample"/>
 
     </node>
 
