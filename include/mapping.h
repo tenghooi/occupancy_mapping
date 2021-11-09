@@ -359,7 +359,7 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
     Eigen::Vector3d pos;
     Eigen::Quaterniond q;
 
-   /*pos << pose_msg->pose.pose.position.x, 
+   pos << pose_msg->pose.pose.position.x, 
             pose_msg->pose.pose.position.y,
             pose_msg->pose.pose.position.z;
 
@@ -367,9 +367,9 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
                             pose_msg->pose.pose.orientation.x,
                             pose_msg->pose.pose.orientation.y,
                             pose_msg->pose.pose.orientation.z);
-                            */
-    pos << 0, 0, 0;
-    q = Eigen::Quaterniond (1, 0, 0, 0);
+                            
+    //pos << 0, 0, 0;
+    //q = Eigen::Quaterniond (1, 0, 0, 0);
 
     transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pos, q));
 }
