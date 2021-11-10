@@ -41,10 +41,16 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
                                 0, 1, 0, 0,
                                 0, 0, 1, 0,
                                 0, 0, 0, 1;
+    /*
     parameters.T_D_B << 0.971048, -0.120915, 0.206023, 0.00114049,
                          0.15701, 0.973037, -0.168959, 0.0450936,
                         -0.180038, 0.196415, 0.96385, 0.0430765,
                          0.0, 0.0, 0.0, 1.0;
+    */
+    parameters.T_D_B << 0, 0, 1, 0,
+                        -1, 0, 0, 0,
+                        0, -1, 0, 0,
+                        0, 0, 0, 1;
 
     node.param<double>("update_occupancy_every_n_sec", parameters.update_occupancy_every_n_sec, 0.1);
 
