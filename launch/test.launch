@@ -1,0 +1,5 @@
+<launch>
+
+	<include file="$(find occupancy_mapping)/launch/occupancy_mapping.launch" />
+
+</launch>
