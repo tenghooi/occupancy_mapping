@@ -2,7 +2,7 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map">
 
         <!-- in meters -->
-        <param name="resolution" value="0.25"/>
+        <param name="resolution" value="0.1"/>
 
         <!-- Used in array structures only -->
         <param name="bottom_left_x" value="-30.0"/>
@@ -21,7 +21,7 @@
 
         <!-- raycasting parameters -->
         <param name="min_ray_length" value="0.2"/>
-        <param name="max_ray_length" value="5.0"/>
+        <param name="max_ray_length" value="10"/>
 
         <!-- needed when using depth image-->
         <!--        <param name="center_x" value="323.120483"/>-->
@@ -54,7 +54,7 @@
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
-	<remap from="~depth" to="/d435i/depth/image_rect_raw"/>
+	<remap from="~depth" to="/d400/depth/image_rect_raw"/>
         <!--remap from="~depth" to="/camera/depth/image_rect_raw"/-->
         <!--remap from="~odometry" to="/camera/color/image_raw/compressed"/-->
 	<remap from="~odometry" to="/t265/odom/sample"/>
