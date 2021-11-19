@@ -2,22 +2,22 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map">
 
         <!-- in meters -->
-        <param name="resolution" value="0.1"/>
+        <param name="resolution" value="0.10"/>
 
         <!-- Used in array structures only -->
-        <param name="bottom_left_x" value="-30.0"/>
-        <param name="bottom_left_y" value="-30.0"/>
-        <param name="bottom_left_z" value="-10"/>
-        <param name="upper_right_x" value="+30.0"/>
-        <param name="upper_right_y" value="+30.0"/>
-        <param name="upper_right_z" value="+10"/>
+        <param name="bottom_left_x" value="-20.0"/>
+        <param name="bottom_left_y" value="-20.0"/>
+        <param name="bottom_left_z" value="-1"/>
+        <param name="upper_right_x" value="+20.0"/>
+        <param name="upper_right_y" value="+20.0"/>
+        <param name="upper_right_z" value="+2.2"/>
 
         <!-- probabilistic grid map -->
-        <param name="prob_hit" value="0.650"/>
-        <param name="prob_miss" value="0.15"/>
-        <param name="prob_min" value="0.05"/>
-        <param name="prob_max" value="0.92"/>
-        <param name="prob_occupancy" value="0.85"/>
+        <param name="prob_hit" value="0.55"/>
+        <param name="prob_miss" value="0.07"/>
+        <param name="prob_min" value="0.03"/>
+        <param name="prob_max" value="0.95"/>
+        <param name="prob_occupancy" value="0.9"/>
 
         <!-- raycasting parameters -->
         <param name="min_ray_length" value="0.2"/>
@@ -54,7 +54,7 @@
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
-	<remap from="~depth" to="/d400/depth/image_rect_raw"/>
+	<remap from="~depth" to="/d435i/depth/image_rect_raw"/>
         <!--remap from="~depth" to="/camera/depth/image_rect_raw"/-->
         <!--remap from="~odometry" to="/camera/color/image_raw/compressed"/-->
 	<remap from="~odometry" to="/t265/odom/sample"/>

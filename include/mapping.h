@@ -102,7 +102,7 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
     transform_sub_ = node.subscribe("odometry", 10, &Mapping::PoseCallBack, this);
     depth_sub_ = node.subscribe("depth", 10, &Mapping::DepthCallBack, this);
 
-    occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("occupancy_pointcloud", 1, true);
+    occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("visualize_pointcloud", 1, true);
     text_pub_ = node.advertise<visualization_msgs::Marker>("text", 1, true);
 
     update_mesh_timer_ = node.createTimer(ros::Duration(parameters_.update_occupancy_every_n_sec),
