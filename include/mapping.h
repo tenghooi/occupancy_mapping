@@ -218,7 +218,6 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
 
     double depth;
     cloud_.clear();
-    double uu, vv;
 
     uint16_t* row_ptr;
     int cols = current_image.cols, rows = current_image.rows;
@@ -240,39 +239,7 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
             }
         }
     } 
-    else 
-    {
-        if (image_count_!=1) 
-        {
-            Eigen::Vector4d coord_h;
-            Eigen::Vector3d coord;
-            for (int v = parameters_.depth_filter_margin; v < rows - parameters_.depth_filter_margin; v++) 
-            {
-                row_ptr = current_image.ptr<uint16_t>(v) + parameters_.depth_filter_margin;
-                for (int u = parameters_.depth_filter_margin; u < cols - parameters_.depth_filter_margin; u++) 
-                {
-                    depth = (*row_ptr++)/k_depth_scaling_factor;
-                    pcl::PointXYZ point;
-                    point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
-                    point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
-                    point.z = depth;
-                    if (depth > parameters_.filter_max_depth || depth < parameters_.filter_min_depth)
-                        continue;
-                    coord_h = last_transform_.inverse()*transform_*Eigen::Vector4d(point.x, point.y, point.z, 1);
-                    coord = Eigen::Vector3d(coord_h(0), coord_h(1), coord_h(2))/coord_h(3);
-                    uu = coord.x()*parameters_.focal_length_x/coord.z() + parameters_.center_x;
-                    vv = coord.y()*parameters_.focal_length_y/coord.z() + parameters_.center_y;
-                    if (uu >= 0 && uu < cols && vv >= 0 && vv < rows) {
-//                        getInterpolation(last_img, uu, vv)
-                        if (fabs(last_image.at<uint16_t>((int) vv, (int) uu)/k_depth_scaling_factor - coord.z())
-                            < parameters_.filter_tolerance) {
-                            cloud_.push_back(point);
-                        }
-                    } //else cloud_.push_back(point_);
-                }
-            }
-        }
-    }
+    
 }
 
 template<class DepthMsgType, class PoseMsgType>

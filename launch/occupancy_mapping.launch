@@ -21,7 +21,7 @@
 
         <!-- raycasting parameters -->
         <param name="min_ray_length" value="0.2"/>
-        <param name="max_ray_length" value="10"/>
+        <param name="max_ray_length" value="5"/>
 
         <!-- needed when using depth image-->
         <!--        <param name="center_x" value="323.120483"/>-->
@@ -36,7 +36,7 @@
         <!--depth_filter -->
 
         <param name="use_depth_filter" value="false"/>
-        <param name="filter_max_depth" value="10.0"/>
+        <param name="filter_max_depth" value="5.0"/>
         <param name="filter_min_depth" value="0.2"/>
         <param name="filter_tolerance" value="0.05"/>
         <!--unit: pixel-->
