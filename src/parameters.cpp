@@ -31,7 +31,7 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
     node.param<double>("focal_length_x", parameters.focal_length_x, 384.458089392);
     node.param<double>("focal_length_y", parameters.focal_length_y, 383.982755697);
 
-    node.param<bool>("use_depth_filter", parameters.use_depth_filter, true);
+    node.param<bool>("use_depth_filter", parameters.use_depth_filter, false);
     node.param<double>("filter_max_depth", parameters.filter_max_depth, 10.0);
     node.param<double>("filter_min_depth", parameters.filter_min_depth, 0.1);
     node.param<double>("filter_tolerance", parameters.filter_tolerance, 0.1);

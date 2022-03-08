@@ -230,6 +230,8 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
             for (int u = 0; u < cols; u++) 
             {
                 depth = (*row_ptr++)/k_depth_scaling_factor;
+                if (depth > parameters_.filter_max_depth || depth < parameters_.filter_min_depth)
+                        continue;
                 pcl::PointXYZ point;
                 point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
                 point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
@@ -358,7 +360,7 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
 {
     Eigen::Vector3d pos;
     Eigen::Quaterniond q;
-
+    /*
    pos << pose_msg->pose.pose.position.x, 
             pose_msg->pose.pose.position.y,
             pose_msg->pose.pose.position.z;
@@ -367,9 +369,9 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
                             pose_msg->pose.pose.orientation.x,
                             pose_msg->pose.pose.orientation.y,
                             pose_msg->pose.pose.orientation.z);
-                            
-    //pos << 0, 0, 0;
-    //q = Eigen::Quaterniond (1, 0, 0, 0);
+                         */   
+    pos << 0, 0, 0;
+    q = Eigen::Quaterniond (1, 0, 0, 0);
 
     transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pos, q));
 }

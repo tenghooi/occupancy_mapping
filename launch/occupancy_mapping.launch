@@ -2,7 +2,7 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map">
 
         <!-- in meters -->
-        <param name="resolution" value="0.10"/>
+        <param name="resolution" value="0.1"/>
 
         <!-- Used in array structures only -->
         <param name="bottom_left_x" value="-20.0"/>
@@ -13,7 +13,7 @@
         <param name="upper_right_z" value="+2.2"/>
 
         <!-- probabilistic grid map -->
-        <param name="prob_hit" value="0.55"/>
+        <param name="prob_hit" value="0.6"/>
         <param name="prob_miss" value="0.07"/>
         <param name="prob_min" value="0.03"/>
         <param name="prob_max" value="0.95"/>
@@ -35,9 +35,9 @@
 
         <!--depth_filter -->
 
-        <param name="use_depth_filter" value="true"/>
+        <param name="use_depth_filter" value="false"/>
         <param name="filter_max_depth" value="10.0"/>
-        <param name="filter_min_depth" value="0.1"/>
+        <param name="filter_min_depth" value="0.2"/>
         <param name="filter_tolerance" value="0.05"/>
         <!--unit: pixel-->
         <param name="depth_filter_margin" value="0"/>
@@ -54,10 +54,10 @@
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
-	<remap from="~depth" to="/d435i/depth/image_rect_raw"/>
-        <!--remap from="~depth" to="/camera/depth/image_rect_raw"/-->
-        <!--remap from="~odometry" to="/camera/color/image_raw/compressed"/-->
-	<remap from="~odometry" to="/t265/odom/sample"/>
+	<!--remap from="~depth" to="/d435i/depth/image_rect_raw"/-->
+        <remap from="~depth" to="/camera/depth/image_rect_raw"/>
+        <remap from="~odometry" to="/camera/color/image_raw/compressed"/>
+	<!--remap from="~odometry" to="/t265/odom/sample"/-->
 
     </node>
 
