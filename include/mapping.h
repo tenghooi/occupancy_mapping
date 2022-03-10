@@ -22,6 +22,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/Imu.h>
 #include <visualization_msgs/Marker.h>
 
 template<class DepthMsgType, class PoseMsgType>
@@ -285,19 +286,20 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         transform_(3, 1) = 0;
         transform_(3, 2) = 0;
         transform_(3, 3) = 1;
-        transform_ = transform_ * parameters_.T_D_B * parameters_.T_Body_Camera;
+        //transform_ = transform_ * parameters_.T_D_B * parameters_.T_Body_Camera;
+        transform_ = transform_ ;
 
         raycast_origin_ = Eigen::Vector3d(transform_(0, 3), transform_(1, 3), transform_(2, 3))/transform_(3, 3);
 
-        //if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) 
-        //{
-            DepthConversion();
-        //} 
-        /* else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) 
         {
-            sensor_msgs::PointCloud2::ConstPtr tmp = depth_queue_.front();
+            DepthConversion();
+        } 
+         else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        {
+            sensor_msgs::PointCloud2::ConstPtr tmp = depth_image_queue_.front();
             pcl::fromROSMsg(*tmp, cloud_);
-        } */
+        } 
 
         if (cloud_.points.size()==0) 
         {
