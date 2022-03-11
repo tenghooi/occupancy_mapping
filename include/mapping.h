@@ -41,6 +41,7 @@ private:
     ros::Subscriber depth_sub_;
 
     ros::Timer update_mesh_timer_;
+    ros::Time begin = ros::Time::now();
 
     Eigen::Vector3d sync_pos_;
     Eigen::Vector3d current_pos_;
@@ -321,6 +322,10 @@ template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth_image_msg)
 {
     depth_image_queue_.push(depth_image_msg);
+    ROS_INFO("Initial time: %d", begin);
+    ros::Duration d = ros::Time::now() - begin;
+    //double dd = d.toSec();
+    //ROS_INFO("Depth call back time: %lf", d.toSec());
     SynchronizationAndProcess();
 }
 
@@ -329,8 +334,9 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
 {
     Eigen::Vector3d pos;
     Eigen::Quaterniond q;
-    /*
-   pos << pose_msg->pose.pose.position.x, 
+    std_msgs::Header header;
+
+    pos << pose_msg->pose.pose.position.x, 
             pose_msg->pose.pose.position.y,
             pose_msg->pose.pose.position.z;
 
@@ -338,11 +344,15 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
                             pose_msg->pose.pose.orientation.x,
                             pose_msg->pose.pose.orientation.y,
                             pose_msg->pose.pose.orientation.z);
-                         */   
-    pos << 0, 0, 0;
-    q = Eigen::Quaterniond (1, 0, 0, 0);
 
-    transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pos, q));
+    ros::Duration dduration = ros::Time::now() - begin;
+    header.stamp.sec = dduration.sec;
+    header.stamp.nsec = dduration.nsec;
+                            
+    //pos << 0, 0, 0;
+    //q = Eigen::Quaterniond (1, 0, 0, 0);
+    ROS_INFO("Pose call back: %lf", header.stamp.toSec());
+    transform_queue_.push(std::make_tuple(header.stamp, pos, q));
 }
 
 template<class DepthMsgType, class PoseMsgType>

@@ -1,5 +1,5 @@
 <launch>
-    <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map">
+    <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map" output="screen">
 
         <!-- in meters -->
         <param name="resolution" value="0.1"/>
@@ -57,9 +57,9 @@
 	<!--remap from="~depth" to="/d435i/depth/image_rect_raw"/-->
         <!-- remap from="~depth" to="/camera/depth/image_rect_raw"/-->
         <!-- remap from="~odometry" to="/camera/color/image_raw/compressed"/-->
-	<!--remap from="~odometry" to="/t265/odom/sample"/-->
+	<remap from="~odometry" to="/t265/odom/sample"/>
 
-    <remap from="~odometry" to="/os_cloud_node/imu"/>
+    <!--remap from="~odometry" to="/os_cloud_node/imu"/-->
 	<remap from="~depth" to="/os_cloud_node/points"/>
 
     </node>
