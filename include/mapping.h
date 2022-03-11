@@ -49,7 +49,7 @@ private:
     Eigen::Quaterniond sync_q_;
 
     std::queue<std::tuple<ros::Time, Eigen::Vector3d, Eigen::Quaterniond>> transform_queue_;
-    std::queue<DepthMsgType> depth_image_queue_;
+    std::queue<std::tuple<ros::Time, DepthMsgType>> depth_image_queue_;
     DepthMsgType sync_depth_;
 
     cv::Mat img_[2];
@@ -71,7 +71,7 @@ public:
 
     void DepthConversion();
     void SynchronizationAndProcess();
-    void DepthCallBack(const DepthMsgType& depth_image_msg);
+    void DepthCallBack(const DepthMsgType& depth_image_msg); //(const DepthMsgType& depth_image_msg)
     void PoseCallBack(const PoseMsgType& pose_msg);
 
     void Visualization(OccupancyMap* occupancy_map, bool global_vis, const std::string& text);
@@ -253,7 +253,8 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
     while(!depth_image_queue_.empty())
     {
         bool new_pose = false;
-        depth_msg_time = depth_image_queue_.front()->header.stamp;
+        depth_msg_time = std::get<0>(depth_image_queue_.front());
+        ROS_INFO("Depth msg time: %lf", depth_msg_time.toSec());
 
         while (transform_queue_.size() > 1 && 
                std::get<0>(transform_queue_.front()) <= depth_msg_time + ros::Duration(time_delay))
@@ -298,7 +299,7 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         } 
          else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
         {
-            sensor_msgs::PointCloud2::ConstPtr tmp = depth_image_queue_.front();
+            sensor_msgs::PointCloud2::ConstPtr tmp = std::get<1>(depth_image_queue_.front());
             pcl::fromROSMsg(*tmp, cloud_);
         } 
 
@@ -319,13 +320,18 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
 }
 
 template<class DepthMsgType, class PoseMsgType>
-void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth_image_msg)
+void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth_image_msg) //(const DepthMsgType& depth_image_msg)
 {
-    depth_image_queue_.push(depth_image_msg);
-    ROS_INFO("Initial time: %d", begin);
-    ros::Duration d = ros::Time::now() - begin;
-    //double dd = d.toSec();
-    //ROS_INFO("Depth call back time: %lf", d.toSec());
+    //ROS_INFO("Initial time: %d", begin);
+    std_msgs::Header header;
+
+    ros::Duration duration = ros::Time::now() - begin;
+    header.stamp.sec = duration.sec;
+    header.stamp.nsec = duration.nsec;
+
+    //ROS_INFO("Depth call back time: %lf", header.stamp.toSec());
+    //ROS_INFO("Depth msg added");
+    depth_image_queue_.push(std::make_tuple(header.stamp, depth_image_msg));
     SynchronizationAndProcess();
 }
 
@@ -336,6 +342,12 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
     Eigen::Quaterniond q;
     std_msgs::Header header;
 
+    //ros::Duration dduration = ros::Time::now() - begin;
+    double duration = (ros::Time::now() - begin).toSec();
+    //header.stamp.sec = dduration.sec;
+    //header.stamp.nsec = dduration.nsec;
+    header.stamp = ros::Time().fromSec(duration);
+
     pos << pose_msg->pose.pose.position.x, 
             pose_msg->pose.pose.position.y,
             pose_msg->pose.pose.position.z;
@@ -344,14 +356,10 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
                             pose_msg->pose.pose.orientation.x,
                             pose_msg->pose.pose.orientation.y,
                             pose_msg->pose.pose.orientation.z);
-
-    ros::Duration dduration = ros::Time::now() - begin;
-    header.stamp.sec = dduration.sec;
-    header.stamp.nsec = dduration.nsec;
                             
     //pos << 0, 0, 0;
     //q = Eigen::Quaterniond (1, 0, 0, 0);
-    ROS_INFO("Pose call back: %lf", header.stamp.toSec());
+    //ROS_INFO("Pose call back: %lf", header.stamp.toSec());
     transform_queue_.push(std::make_tuple(header.stamp, pos, q));
 }
 

@@ -2,7 +2,7 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map" output="screen">
 
         <!-- in meters -->
-        <param name="resolution" value="0.1"/>
+        <param name="resolution" value="0.05"/>
 
         <!-- Used in array structures only -->
         <param name="bottom_left_x" value="-20.0"/>
