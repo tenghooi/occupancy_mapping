@@ -2,7 +2,7 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map" output="screen">
 
         <!-- in meters -->
-        <param name="resolution" value="0.05"/>
+        <param name="resolution" value="0.1"/>
 
         <!-- Used in array structures only -->
         <param name="bottom_left_x" value="-20.0"/>
@@ -10,18 +10,18 @@
         <param name="bottom_left_z" value="-2"/>
         <param name="upper_right_x" value="+20.0"/>
         <param name="upper_right_y" value="+20.0"/>
-        <param name="upper_right_z" value="+5"/>
+        <param name="upper_right_z" value="+6"/>
 
         <!-- probabilistic grid map -->
-        <param name="prob_hit" value="0.6"/>
-        <param name="prob_miss" value="0.07"/>
-        <param name="prob_min" value="0.03"/>
+        <param name="prob_hit" value="0.70"/>
+        <param name="prob_miss" value="0.35"/>
+        <param name="prob_min" value="0.12"/>
         <param name="prob_max" value="0.95"/>
-        <param name="prob_occupancy" value="0.9"/>
+        <param name="prob_occupancy" value="0.83"/>
 
         <!-- raycasting parameters -->
         <param name="min_ray_length" value="0.2"/>
-        <param name="max_ray_length" value="5"/>
+        <param name="max_ray_length" value="10"/>
 
         <!-- needed when using depth image-->
         <!--        <param name="center_x" value="323.120483"/>-->
