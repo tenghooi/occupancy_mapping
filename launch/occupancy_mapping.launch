@@ -17,11 +17,11 @@
         <param name="prob_miss" value="0.35"/>
         <param name="prob_min" value="0.12"/>
         <param name="prob_max" value="0.95"/>
-        <param name="prob_occupancy" value="0.83"/>
+        <param name="prob_occupancy" value="0.85"/>
 
         <!-- raycasting parameters -->
         <param name="min_ray_length" value="0.2"/>
-        <param name="max_ray_length" value="10"/>
+        <param name="max_ray_length" value="5"/>
 
         <!-- needed when using depth image-->
         <!--        <param name="center_x" value="323.120483"/>-->
