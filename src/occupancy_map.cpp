@@ -164,8 +164,8 @@ void OccupancyMap::SetOriginalRange()
 
 void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
 {
-    //point_cloud.header.frame_id = "os_sensor";
-    point_cloud.header.frame_id = "t265_odom_frame";
+    point_cloud.header.frame_id = "camera_init";
+    //point_cloud.header.frame_id = "uav1/t265_odom_frame";
     point_cloud.points.clear();
 
     for (int x = min_vec_[0]; x <= max_vec_[0]; ++x)

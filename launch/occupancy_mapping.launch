@@ -2,25 +2,25 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map" output="screen">
 
         <!-- in meters -->
-        <param name="resolution" value="0.1"/>
+        <param name="resolution" value="0.15"/>
 
         <!-- Used in array structures only -->
-        <param name="bottom_left_x" value="-20.0"/>
-        <param name="bottom_left_y" value="-20.0"/>
+        <param name="bottom_left_x" value="-40.0"/>
+        <param name="bottom_left_y" value="-40.0"/>
         <param name="bottom_left_z" value="-2"/>
-        <param name="upper_right_x" value="+20.0"/>
-        <param name="upper_right_y" value="+20.0"/>
+        <param name="upper_right_x" value="+40.0"/>
+        <param name="upper_right_y" value="+40.0"/>
         <param name="upper_right_z" value="+6"/>
 
         <!-- probabilistic grid map -->
-        <param name="prob_hit" value="0.70"/>
-        <param name="prob_miss" value="0.35"/>
-        <param name="prob_min" value="0.12"/>
+        <param name="prob_hit" value="0.60"/>
+        <param name="prob_miss" value="0.15"/>
+        <param name="prob_min" value="0.1"/>
         <param name="prob_max" value="0.95"/>
         <param name="prob_occupancy" value="0.85"/>
 
         <!-- raycasting parameters -->
-        <param name="min_ray_length" value="0.2"/>
+        <param name="min_ray_length" value="0.5"/>
         <param name="max_ray_length" value="5"/>
 
         <!-- needed when using depth image-->
@@ -36,8 +36,8 @@
         <!--depth_filter -->
 
         <param name="use_depth_filter" value="false"/>
-        <param name="filter_max_depth" value="10.0"/>
-        <param name="filter_min_depth" value="0.2"/>
+        <param name="filter_max_depth" value="5.0"/>
+        <param name="filter_min_depth" value="1.0"/>
         <param name="filter_tolerance" value="0.05"/>
         <!--unit: pixel-->
         <param name="depth_filter_margin" value="0"/>
@@ -57,7 +57,8 @@
 	<!--remap from="~depth" to="/d435i/depth/image_rect_raw"/-->
         <!-- remap from="~depth" to="/camera/depth/image_rect_raw"/-->
         <!-- remap from="~odometry" to="/camera/color/image_raw/compressed"/-->
-	<remap from="~odometry" to="/t265/odom/sample"/>
+	<!-- remap from="~odometry" to="/uav1/t265/odom/sample"/ -->
+    <remap from="~odometry" to="/aft_mapped_to_init_high_frec"/>
 
     <!--remap from="~odometry" to="/os_cloud_node/imu"/-->
 	<remap from="~depth" to="/os_cloud_node/points"/>
