@@ -145,9 +145,10 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
         else if (length > parameters_.max_ray_length)
         {
             // Normalizes the vector and set to max_ray_length. Set the measured point voxel occupancy to 0.
-            transformed_point = (transformed_point - raycast_origin_) / length
-                                * parameters_.max_ray_length + raycast_origin_; 
-            tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
+            // transformed_point = (transformed_point - raycast_origin_) / length
+            //                     * parameters_.max_ray_length + raycast_origin_; 
+            // tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
+            continue;
         }
         else
         {
