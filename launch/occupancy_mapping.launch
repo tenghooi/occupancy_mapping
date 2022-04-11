@@ -52,6 +52,17 @@
         <!--0 for no visulize-->
         <param name="visualize_every_n_updates" value="1"/>
 
+        <!-- Set margin for visualization of occupancy map -->
+        <!-- Margin should be distances from map boundary in meter-->
+        <!-- 0 means same as the map boundary -->
+        <!-- Values must be in accordance to resolution -->
+        <param name="vis_min_margin_x" value="0.0"/>
+        <param name="vis_min_margin_y" value="0.0"/>
+        <param name="vis_min_margin_z" value="0.0"/>
+        <param name="vis_max_margin_x" value="0.0"/>
+        <param name="vis_max_margin_y" value="0.0"/>
+        <param name="vis_max_margin_z" value="0.0"/>
+
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->
 	<!--remap from="~depth" to="/d435i/depth/image_rect_raw"/-->

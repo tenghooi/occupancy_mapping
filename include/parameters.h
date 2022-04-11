@@ -43,6 +43,13 @@ struct Parameters
     bool global_update;
     bool global_map;
     bool global_vis;
+
+    double vis_min_margin_x;
+    double vis_min_margin_y;
+    double vis_min_margin_z;
+    double vis_max_margin_x;
+    double vis_max_margin_y;
+    double vis_max_margin_z;
 };
 
 void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node);
