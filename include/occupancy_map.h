@@ -85,6 +85,7 @@ public:
     void SetOriginalRange();
 
     void GetPointCloud(sensor_msgs::PointCloud& point_cloud);
+    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud);
 };
 
 

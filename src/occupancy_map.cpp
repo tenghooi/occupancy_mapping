@@ -188,3 +188,30 @@ void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
                 point_cloud.points.push_back(p);
             }
 }
+
+void OccupancyMap::GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud)
+{
+    point_cloud.header.frame_id = "camera_init";
+    //point_cloud.header.frame_id = "uav1/t265_odom_frame";
+    point_cloud.points.clear();
+
+    for (int x = 19; x <= max_vec_[0]; ++x)
+        for (int y = 19; y <= max_vec_[1]; ++y)
+            for (int z = 19; z <= max_vec_[2]; ++z) 
+            {
+                Eigen::Vector3i tmp_voxel = {x, y, z};
+
+                if (!Exist(Vox2Indx(tmp_voxel)))
+                    continue;
+
+                Eigen::Vector3d pos;
+                Vox2Pos(tmp_voxel, pos);
+
+                geometry_msgs::Point32 p;
+                p.x = pos(0);
+                p.y = pos(1);
+                p.z = pos(2);
+                
+                point_cloud.points.push_back(p);
+            }
+}

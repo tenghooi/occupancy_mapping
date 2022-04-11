@@ -376,7 +376,7 @@ void Mapping<DepthMsgType, PoseMsgType>::Visualization(OccupancyMap* occupancy_m
         if(global_vis) occupancy_map_->SetOriginalRange();
 
         sensor_msgs::PointCloud point_cloud;
-        occupancy_map_->GetPointCloud(point_cloud);
+        occupancy_map_->GetVisualizePointCloud(point_cloud);
         occupancy_pub_.publish(point_cloud);
     }
 

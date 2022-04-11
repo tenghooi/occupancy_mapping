@@ -2,7 +2,7 @@
     <node pkg="occupancy_mapping" type="occupancy_mapping" name="occupancy_map" output="screen">
 
         <!-- in meters -->
-        <param name="resolution" value="0.15"/>
+        <param name="resolution" value="0.1"/>
 
         <!-- Used in array structures only -->
         <param name="bottom_left_x" value="-40.0"/>
@@ -10,7 +10,7 @@
         <param name="bottom_left_z" value="-2"/>
         <param name="upper_right_x" value="+40.0"/>
         <param name="upper_right_y" value="+40.0"/>
-        <param name="upper_right_z" value="+6"/>
+        <param name="upper_right_z" value="+7"/>
 
         <!-- probabilistic grid map -->
         <param name="prob_hit" value="0.60"/>
