@@ -10,11 +10,11 @@
         <param name="bottom_left_z" value="-2"/>
         <param name="upper_right_x" value="+40.0"/>
         <param name="upper_right_y" value="+40.0"/>
-        <param name="upper_right_z" value="+7"/>
+        <param name="upper_right_z" value="+6"/>
 
         <!-- probabilistic grid map -->
-        <param name="prob_hit" value="0.60"/>
-        <param name="prob_miss" value="0.15"/>
+        <param name="prob_hit" value="0.55"/>
+        <param name="prob_miss" value="0.12"/>
         <param name="prob_min" value="0.1"/>
         <param name="prob_max" value="0.95"/>
         <param name="prob_occupancy" value="0.85"/>

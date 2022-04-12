@@ -60,12 +60,17 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
     node.param<bool>("global_map", parameters.global_map, true);
     node.param<bool>("global_vis", parameters.global_vis, true);
 
-    node.param<double>("vis_min_margin_x", parameters.vis_min_margin_x, 0.0);
-    node.param<double>("vis_min_margin_y", parameters.vis_min_margin_y, 0.0);
-    node.param<double>("vis_min_margin_z", parameters.vis_min_margin_z, 0.0);
-    node.param<double>("vis_max_margin_x", parameters.vis_max_margin_x, 0.0);
-    node.param<double>("vis_max_margin_y", parameters.vis_max_margin_y, 0.0);
-    node.param<double>("vis_max_margin_z", parameters.vis_max_margin_z, 0.0);
+    double vis_min_margin_x, vis_min_margin_y, vis_min_margin_z;
+    double vis_max_margin_x, vis_max_margin_y, vis_max_margin_z;
+    node.param<double>("vis_min_margin_x", vis_min_margin_x, 0.0);
+    node.param<double>("vis_min_margin_y", vis_min_margin_y, 0.0);
+    node.param<double>("vis_min_margin_z", vis_min_margin_z, 0.0);
+    node.param<double>("vis_max_margin_x", vis_max_margin_x, 0.0);
+    node.param<double>("vis_max_margin_y", vis_max_margin_y, 0.0);
+    node.param<double>("vis_max_margin_z", vis_max_margin_z, 0.0);
+
+    parameters.vis_min_margin << vis_min_margin_x, vis_min_margin_y, vis_min_margin_z;
+    parameters.vis_max_margin << vis_max_margin_x, vis_max_margin_y, vis_max_margin_z;
 
     node.param<std::string>("map_frame_id", parameters.map_frame_id, "camera_init");
    

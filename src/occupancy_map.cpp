@@ -194,7 +194,6 @@ void OccupancyMap::GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud,
 {
     point_cloud.header.frame_id = map_frame_id;
     point_cloud.points.clear();
-    
 
     for (int x = 19; x <= max_vec_[0]; ++x)
         for (int y = 19; y <= max_vec_[1]; ++y)

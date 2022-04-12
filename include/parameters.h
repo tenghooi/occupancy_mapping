@@ -46,12 +46,8 @@ struct Parameters
     bool global_vis;
 
     // map margin for visualization
-    double vis_min_margin_x;
-    double vis_min_margin_y;
-    double vis_min_margin_z;
-    double vis_max_margin_x;
-    double vis_max_margin_y;
-    double vis_max_margin_z;
+    Eigen::Vector3d vis_min_margin, vis_max_margin;
+
     // publishing sensor_msgs::PointCloud header frame id
     std::string map_frame_id;
 };

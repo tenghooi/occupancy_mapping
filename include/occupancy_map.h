@@ -55,6 +55,8 @@ private:
     double resolution_;
     Eigen::Vector3i max_vec_, min_vec_, last_max_vec_, last_min_vec_;
 
+    // boundary for visualizing/publishing map point cloud
+    Eigen::Vector3i lower_bound, upper_bound;
 
 public:
     int grid_total_size_;
@@ -86,8 +88,12 @@ public:
 
     void SetOriginalRange();
 
+    void SetVisualizationMargin(const Eigen::Vector3d& vis_min_margin, 
+                                const Eigen::Vector3d& vis_max_margin);
     void GetPointCloud(sensor_msgs::PointCloud& point_cloud, const std::string& map_frame_id);
-    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud, const std::string& map_frame_id);
+    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud, 
+                                const std::string& map_frame_id);
+
 };
 
 
