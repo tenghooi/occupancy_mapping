@@ -162,6 +162,12 @@ void OccupancyMap::SetOriginalRange()
     last_max_vec_ = max_vec_;
 }
 
+void OccupancyMap::SetVisualizationMargin(const Eigen::Vector3d& vis_min_margin, 
+                                          const Eigen::Vector3d& vis_max_margin)
+{
+    
+}
+
 void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud, 
                                           const std::string& map_frame_id)
 {
