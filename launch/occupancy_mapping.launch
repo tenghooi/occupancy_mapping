@@ -52,16 +52,19 @@
         <!--0 for no visulize-->
         <param name="visualize_every_n_updates" value="1"/>
 
-        <!-- Set margin for visualization of occupancy map -->
+        <!-- Set margin from map boundary for visualizing map point cloud -->
+        <!-- for visualization or other uses -->
         <!-- Margin should be distances from map boundary in meter-->
         <!-- 0 means same as the map boundary -->
-        <!-- Values must be in accordance to resolution -->
+        <!-- Values must be in resolution precision -->
         <param name="vis_min_margin_x" value="0.0"/>
         <param name="vis_min_margin_y" value="0.0"/>
         <param name="vis_min_margin_z" value="0.0"/>
         <param name="vis_max_margin_x" value="0.0"/>
         <param name="vis_max_margin_y" value="0.0"/>
         <param name="vis_max_margin_z" value="0.0"/>
+        <!-- publishing sensor_msgs::PointCloud header frame id -->
+        <param name="map_frame_id" value="camera_init"/>
 
         <!-- subsribe source -->
         <!--<remap from="~pointcloud" to="/camera/depth/color/points"/>-->

@@ -66,5 +66,7 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
     node.param<double>("vis_max_margin_x", parameters.vis_max_margin_x, 0.0);
     node.param<double>("vis_max_margin_y", parameters.vis_max_margin_y, 0.0);
     node.param<double>("vis_max_margin_z", parameters.vis_max_margin_z, 0.0);
+
+    node.param<std::string>("map_frame_id", parameters.map_frame_id, "camera_init");
    
 }

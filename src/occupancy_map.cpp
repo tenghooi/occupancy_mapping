@@ -162,10 +162,10 @@ void OccupancyMap::SetOriginalRange()
     last_max_vec_ = max_vec_;
 }
 
-void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
+void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud, 
+                                          const std::string& map_frame_id)
 {
-    point_cloud.header.frame_id = "camera_init";
-    //point_cloud.header.frame_id = "uav1/t265_odom_frame";
+    point_cloud.header.frame_id = map_frame_id;
     point_cloud.points.clear();
 
     for (int x = min_vec_[0]; x <= max_vec_[0]; ++x)
@@ -189,10 +189,10 @@ void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud)
             }
 }
 
-void OccupancyMap::GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud)
+void OccupancyMap::GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud, 
+                                          const std::string& map_frame_id)
 {
-    point_cloud.header.frame_id = "camera_init";
-    //point_cloud.header.frame_id = "uav1/t265_odom_frame";
+    point_cloud.header.frame_id = map_frame_id;
     point_cloud.points.clear();
     
 

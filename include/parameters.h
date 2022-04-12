@@ -1,8 +1,9 @@
-#ifndef OCCUPANCY_MAP_PARAMETERS_H_
-#define OCCUPANCY_MAP_PARAMETERS_H_
+#ifndef _OCCUPANCY_MAP_PARAMETERS_H_
+#define _OCCUPANCY_MAP_PARAMETERS_H_
 
 #include <Eigen/Eigen>
 #include <ros/ros.h>
+#include <string>
 
 struct Parameters
 {   
@@ -44,12 +45,15 @@ struct Parameters
     bool global_map;
     bool global_vis;
 
+    // map margin for visualization
     double vis_min_margin_x;
     double vis_min_margin_y;
     double vis_min_margin_z;
     double vis_max_margin_x;
     double vis_max_margin_y;
     double vis_max_margin_z;
+    // publishing sensor_msgs::PointCloud header frame id
+    std::string map_frame_id;
 };
 
 void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node);

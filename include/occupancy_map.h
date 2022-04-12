@@ -2,6 +2,7 @@
 #define OCCUPANCY_MAP_H_
 
 #include <iostream>
+#include <string>
 #include <algorithm>
 #include <vector>
 #include <cmath>
@@ -48,6 +49,7 @@ private:
 
     // map properties
     Eigen::Vector3d origin_;
+    std::string frame_id_;
     int infinity_;
     int undefined_;
     double resolution_;
@@ -84,8 +86,8 @@ public:
 
     void SetOriginalRange();
 
-    void GetPointCloud(sensor_msgs::PointCloud& point_cloud);
-    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud);
+    void GetPointCloud(sensor_msgs::PointCloud& point_cloud, const std::string& map_frame_id);
+    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud, const std::string& map_frame_id);
 };
 
 
