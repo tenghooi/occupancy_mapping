@@ -31,7 +31,7 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
     node.param<double>("focal_length_x", parameters.focal_length_x, 384.458089392);
     node.param<double>("focal_length_y", parameters.focal_length_y, 383.982755697);
 
-    node.param<bool>("use_depth_filter", parameters.use_depth_filter, true);
+    node.param<bool>("use_depth_filter", parameters.use_depth_filter, false);
     node.param<double>("filter_max_depth", parameters.filter_max_depth, 10.0);
     node.param<double>("filter_min_depth", parameters.filter_min_depth, 0.1);
     node.param<double>("filter_tolerance", parameters.filter_tolerance, 0.1);
@@ -59,5 +59,19 @@ void SetNodeParameters(Parameters& parameters, const ros::NodeHandle& node)
     node.param<bool>("global_update", parameters.global_update, true);
     node.param<bool>("global_map", parameters.global_map, true);
     node.param<bool>("global_vis", parameters.global_vis, true);
+
+    double vis_min_margin_x, vis_min_margin_y, vis_min_margin_z;
+    double vis_max_margin_x, vis_max_margin_y, vis_max_margin_z;
+    node.param<double>("vis_min_margin_x", vis_min_margin_x, 0.0);
+    node.param<double>("vis_min_margin_y", vis_min_margin_y, 0.0);
+    node.param<double>("vis_min_margin_z", vis_min_margin_z, 0.0);
+    node.param<double>("vis_max_margin_x", vis_max_margin_x, 0.0);
+    node.param<double>("vis_max_margin_y", vis_max_margin_y, 0.0);
+    node.param<double>("vis_max_margin_z", vis_max_margin_z, 0.0);
+
+    parameters.vis_min_margin << vis_min_margin_x, vis_min_margin_y, vis_min_margin_z;
+    parameters.vis_max_margin << vis_max_margin_x, vis_max_margin_y, vis_max_margin_z;
+
+    node.param<std::string>("map_frame_id", parameters.map_frame_id, "camera_init");
    
 }

@@ -22,6 +22,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/Imu.h>
 #include <visualization_msgs/Marker.h>
 
 template<class DepthMsgType, class PoseMsgType>
@@ -40,6 +41,7 @@ private:
     ros::Subscriber depth_sub_;
 
     ros::Timer update_mesh_timer_;
+    ros::Time begin = ros::Time::now();
 
     Eigen::Vector3d sync_pos_;
     Eigen::Vector3d current_pos_;
@@ -47,7 +49,7 @@ private:
     Eigen::Quaterniond sync_q_;
 
     std::queue<std::tuple<ros::Time, Eigen::Vector3d, Eigen::Quaterniond>> transform_queue_;
-    std::queue<DepthMsgType> depth_image_queue_;
+    std::queue<std::tuple<ros::Time, DepthMsgType>> depth_image_queue_;
     DepthMsgType sync_depth_;
 
     cv::Mat img_[2];
@@ -69,7 +71,7 @@ public:
 
     void DepthConversion();
     void SynchronizationAndProcess();
-    void DepthCallBack(const DepthMsgType& depth_image_msg);
+    void DepthCallBack(const DepthMsgType& depth_image_msg); //(const DepthMsgType& depth_image_msg)
     void PoseCallBack(const PoseMsgType& pose_msg);
 
     void Visualization(OccupancyMap* occupancy_map, bool global_vis, const std::string& text);
@@ -94,6 +96,14 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
                                   parameters_.prob_max, 
                                   parameters_.prob_occupancy);
     
+    if(parameters_.global_update)
+    {
+        occupancy_map_->SetOriginalRange();
+    }
+
+    occupancy_map_->SetVisualizationMargin(parameters_.vis_min_margin,
+                                           parameters_.vis_max_margin);
+    
     set_free_.resize(occupancy_map_->grid_total_size_);
     set_occ_.resize(occupancy_map_->grid_total_size_);
     std::fill(set_free_.begin(), set_free_.end(), 0);
@@ -102,7 +112,7 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
     transform_sub_ = node.subscribe("odometry", 10, &Mapping::PoseCallBack, this);
     depth_sub_ = node.subscribe("depth", 10, &Mapping::DepthCallBack, this);
 
-    occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("occupancy_pointcloud", 1, true);
+    occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("visualize_pointcloud", 1, true);
     text_pub_ = node.advertise<visualization_msgs::Marker>("text", 1, true);
 
     update_mesh_timer_ = node.createTimer(ros::Duration(parameters_.update_occupancy_every_n_sec),
@@ -143,9 +153,10 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
         else if (length > parameters_.max_ray_length)
         {
             // Normalizes the vector and set to max_ray_length. Set the measured point voxel occupancy to 0.
-            transformed_point = (transformed_point - raycast_origin_) / length
-                                * parameters_.max_ray_length + raycast_origin_; 
-            tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
+            // transformed_point = (transformed_point - raycast_origin_) / length
+            //                     * parameters_.max_ray_length + raycast_origin_; 
+            // tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
+            continue;
         }
         else
         {
@@ -218,7 +229,6 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
 
     double depth;
     cloud_.clear();
-    double uu, vv;
 
     uint16_t* row_ptr;
     int cols = current_image.cols, rows = current_image.rows;
@@ -230,6 +240,8 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
             for (int u = 0; u < cols; u++) 
             {
                 depth = (*row_ptr++)/k_depth_scaling_factor;
+                if (depth > parameters_.filter_max_depth || depth < parameters_.filter_min_depth)
+                        continue;
                 pcl::PointXYZ point;
                 point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
                 point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
@@ -238,39 +250,7 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
             }
         }
     } 
-    else 
-    {
-        if (image_count_!=1) 
-        {
-            Eigen::Vector4d coord_h;
-            Eigen::Vector3d coord;
-            for (int v = parameters_.depth_filter_margin; v < rows - parameters_.depth_filter_margin; v++) 
-            {
-                row_ptr = current_image.ptr<uint16_t>(v) + parameters_.depth_filter_margin;
-                for (int u = parameters_.depth_filter_margin; u < cols - parameters_.depth_filter_margin; u++) 
-                {
-                    depth = (*row_ptr++)/k_depth_scaling_factor;
-                    pcl::PointXYZ point;
-                    point.x = (u - parameters_.center_x)*depth/parameters_.focal_length_x;
-                    point.y = (v - parameters_.center_y)*depth/parameters_.focal_length_y;
-                    point.z = depth;
-                    if (depth > parameters_.filter_max_depth || depth < parameters_.filter_min_depth)
-                        continue;
-                    coord_h = last_transform_.inverse()*transform_*Eigen::Vector4d(point.x, point.y, point.z, 1);
-                    coord = Eigen::Vector3d(coord_h(0), coord_h(1), coord_h(2))/coord_h(3);
-                    uu = coord.x()*parameters_.focal_length_x/coord.z() + parameters_.center_x;
-                    vv = coord.y()*parameters_.focal_length_y/coord.z() + parameters_.center_y;
-                    if (uu >= 0 && uu < cols && vv >= 0 && vv < rows) {
-//                        getInterpolation(last_img, uu, vv)
-                        if (fabs(last_image.at<uint16_t>((int) vv, (int) uu)/k_depth_scaling_factor - coord.z())
-                            < parameters_.filter_tolerance) {
-                            cloud_.push_back(point);
-                        }
-                    } //else cloud_.push_back(point_);
-                }
-            }
-        }
-    }
+    
 }
 
 template<class DepthMsgType, class PoseMsgType>
@@ -282,7 +262,8 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
     while(!depth_image_queue_.empty())
     {
         bool new_pose = false;
-        depth_msg_time = depth_image_queue_.front()->header.stamp;
+        depth_msg_time = std::get<0>(depth_image_queue_.front());
+        ROS_INFO("Depth msg time: %lf", depth_msg_time.toSec());
 
         while (transform_queue_.size() > 1 && 
                std::get<0>(transform_queue_.front()) <= depth_msg_time + ros::Duration(time_delay))
@@ -316,19 +297,20 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         transform_(3, 1) = 0;
         transform_(3, 2) = 0;
         transform_(3, 3) = 1;
-        transform_ = transform_ * parameters_.T_D_B * parameters_.T_Body_Camera;
+        //transform_ = transform_ * parameters_.T_D_B * parameters_.T_Body_Camera;
+        transform_ = transform_ ;
 
         raycast_origin_ = Eigen::Vector3d(transform_(0, 3), transform_(1, 3), transform_(2, 3))/transform_(3, 3);
 
-        //if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) 
-        //{
-            DepthConversion();
-        //} 
-        /* else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) 
         {
-            sensor_msgs::PointCloud2::ConstPtr tmp = depth_queue_.front();
+            DepthConversion();
+        } 
+         else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        {
+            sensor_msgs::PointCloud2::ConstPtr tmp = std::get<1>(depth_image_queue_.front());
             pcl::fromROSMsg(*tmp, cloud_);
-        } */
+        } 
 
         if (cloud_.points.size()==0) 
         {
@@ -347,9 +329,18 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
 }
 
 template<class DepthMsgType, class PoseMsgType>
-void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth_image_msg)
+void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth_image_msg) //(const DepthMsgType& depth_image_msg)
 {
-    depth_image_queue_.push(depth_image_msg);
+    //ROS_INFO("Initial time: %d", begin);
+    std_msgs::Header header;
+
+    ros::Duration duration = ros::Time::now() - begin;
+    header.stamp.sec = duration.sec;
+    header.stamp.nsec = duration.nsec;
+
+    //ROS_INFO("Depth call back time: %lf", header.stamp.toSec());
+    //ROS_INFO("Depth msg added");
+    depth_image_queue_.push(std::make_tuple(header.stamp, depth_image_msg));
     SynchronizationAndProcess();
 }
 
@@ -358,8 +349,15 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
 {
     Eigen::Vector3d pos;
     Eigen::Quaterniond q;
+    std_msgs::Header header;
 
-   pos << pose_msg->pose.pose.position.x, 
+    //ros::Duration dduration = ros::Time::now() - begin;
+    double duration = (ros::Time::now() - begin).toSec();
+    //header.stamp.sec = dduration.sec;
+    //header.stamp.nsec = dduration.nsec;
+    header.stamp = ros::Time().fromSec(duration);
+
+    pos << pose_msg->pose.pose.position.x, 
             pose_msg->pose.pose.position.y,
             pose_msg->pose.pose.position.z;
 
@@ -370,8 +368,8 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
                             
     //pos << 0, 0, 0;
     //q = Eigen::Quaterniond (1, 0, 0, 0);
-
-    transform_queue_.push(std::make_tuple(pose_msg->header.stamp, pos, q));
+    //ROS_INFO("Pose call back: %lf", header.stamp.toSec());
+    transform_queue_.push(std::make_tuple(header.stamp, pos, q));
 }
 
 template<class DepthMsgType, class PoseMsgType>
@@ -386,7 +384,7 @@ void Mapping<DepthMsgType, PoseMsgType>::Visualization(OccupancyMap* occupancy_m
         if(global_vis) occupancy_map_->SetOriginalRange();
 
         sensor_msgs::PointCloud point_cloud;
-        occupancy_map_->GetPointCloud(point_cloud);
+        occupancy_map_->GetVisualizePointCloud(point_cloud, parameters_.map_frame_id);
         occupancy_pub_.publish(point_cloud);
     }
 
@@ -433,11 +431,12 @@ void Mapping<DepthMsgType, PoseMsgType>::UpdateOccupancyEvent(const ros::TimerEv
 
     if(occupancy_map_->CheckUpdate())
     {
+        /*
         if(parameters_.global_update)
         {
             occupancy_map_->SetOriginalRange();
         }
-
+        */
         occupancy_map_->UpdateOccupancy(parameters_.global_update);
     }
 
