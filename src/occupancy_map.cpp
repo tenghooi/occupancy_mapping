@@ -165,7 +165,13 @@ void OccupancyMap::SetOriginalRange()
 void OccupancyMap::SetVisualizationMargin(const Eigen::Vector3d& vis_min_margin, 
                                           const Eigen::Vector3d& vis_max_margin)
 {
-    
+    vis_lower_bound_[0] = min_vec_[0] + static_cast<int>(vis_min_margin[0]/resolution_);
+    vis_lower_bound_[1] = min_vec_[1] + static_cast<int>(vis_min_margin[1]/resolution_);
+    vis_lower_bound_[2] = min_vec_[2] + static_cast<int>(vis_min_margin[2]/resolution_);
+
+    vis_upper_bound_[0] = max_vec_[0] - static_cast<int>(vis_max_margin[0]/resolution_);
+    vis_upper_bound_[1] = max_vec_[1] - static_cast<int>(vis_max_margin[1]/resolution_);
+    vis_upper_bound_[2] = max_vec_[2] - static_cast<int>(vis_max_margin[2]/resolution_);
 }
 
 void OccupancyMap::GetPointCloud(sensor_msgs::PointCloud& point_cloud, 
@@ -201,9 +207,9 @@ void OccupancyMap::GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud,
     point_cloud.header.frame_id = map_frame_id;
     point_cloud.points.clear();
 
-    for (int x = 19; x <= max_vec_[0]; ++x)
-        for (int y = 19; y <= max_vec_[1]; ++y)
-            for (int z = 19; z <= max_vec_[2]; ++z) 
+    for (int x = vis_lower_bound_[0]; x <= vis_upper_bound_[0]; ++x)
+        for (int y = vis_lower_bound_[1]; y <= vis_upper_bound_[1]; ++y)
+            for (int z = vis_lower_bound_[2]; z <= vis_upper_bound_[2]; ++z) 
             {
                 Eigen::Vector3i tmp_voxel = {x, y, z};
 

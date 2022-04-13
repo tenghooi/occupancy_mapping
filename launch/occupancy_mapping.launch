@@ -52,14 +52,15 @@
         <!--0 for no visulize-->
         <param name="visualize_every_n_updates" value="1"/>
 
-        <!-- Set margin from map boundary for visualizing map point cloud -->
+        <!-- Set margin from map boundary for publishing map point cloud -->
         <!-- for visualization or other uses -->
         <!-- Margin should be distances from map boundary in meter-->
         <!-- 0 means same as the map boundary -->
-        <!-- Values must be in resolution precision -->
+        <!-- Values must be in resolution precision and  >= 0.0 -->
+        <!-- Setting 0.4 in resolution 0.15 will set boundary at 0.3-->
         <param name="vis_min_margin_x" value="0.0"/>
         <param name="vis_min_margin_y" value="0.0"/>
-        <param name="vis_min_margin_z" value="0.0"/>
+        <param name="vis_min_margin_z" value="1.9"/>
         <param name="vis_max_margin_x" value="0.0"/>
         <param name="vis_max_margin_y" value="0.0"/>
         <param name="vis_max_margin_z" value="0.0"/>
