@@ -2,6 +2,7 @@
 #define OCCUPANCY_MAP_H_
 
 #include <iostream>
+#include <string>
 #include <algorithm>
 #include <vector>
 #include <cmath>
@@ -48,11 +49,14 @@ private:
 
     // map properties
     Eigen::Vector3d origin_;
+    std::string frame_id_;
     int infinity_;
     int undefined_;
     double resolution_;
     Eigen::Vector3i max_vec_, min_vec_, last_max_vec_, last_min_vec_;
 
+    // boundary for visualizing/publishing map point cloud
+    Eigen::Vector3i vis_lower_bound_, vis_upper_bound_;
 
 public:
     int grid_total_size_;
@@ -83,9 +87,13 @@ public:
     int GetOccupancy(Eigen::Vector3d pos);
 
     void SetOriginalRange();
+    void SetVisualizationMargin(const Eigen::Vector3d& vis_min_margin, 
+                                const Eigen::Vector3d& vis_max_margin);
 
-    void GetPointCloud(sensor_msgs::PointCloud& point_cloud);
-    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud);
+    void GetPointCloud(sensor_msgs::PointCloud& point_cloud, const std::string& map_frame_id);
+    void GetVisualizePointCloud(sensor_msgs::PointCloud& point_cloud, 
+                                const std::string& map_frame_id);
+
 };
 
 

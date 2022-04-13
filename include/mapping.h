@@ -96,6 +96,14 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
                                   parameters_.prob_max, 
                                   parameters_.prob_occupancy);
     
+    if(parameters_.global_update)
+    {
+        occupancy_map_->SetOriginalRange();
+    }
+
+    occupancy_map_->SetVisualizationMargin(parameters_.vis_min_margin,
+                                           parameters_.vis_max_margin);
+    
     set_free_.resize(occupancy_map_->grid_total_size_);
     set_occ_.resize(occupancy_map_->grid_total_size_);
     std::fill(set_free_.begin(), set_free_.end(), 0);
@@ -376,7 +384,7 @@ void Mapping<DepthMsgType, PoseMsgType>::Visualization(OccupancyMap* occupancy_m
         if(global_vis) occupancy_map_->SetOriginalRange();
 
         sensor_msgs::PointCloud point_cloud;
-        occupancy_map_->GetVisualizePointCloud(point_cloud);
+        occupancy_map_->GetVisualizePointCloud(point_cloud, parameters_.map_frame_id);
         occupancy_pub_.publish(point_cloud);
     }
 
@@ -423,11 +431,12 @@ void Mapping<DepthMsgType, PoseMsgType>::UpdateOccupancyEvent(const ros::TimerEv
 
     if(occupancy_map_->CheckUpdate())
     {
+        /*
         if(parameters_.global_update)
         {
             occupancy_map_->SetOriginalRange();
         }
-
+        */
         occupancy_map_->UpdateOccupancy(parameters_.global_update);
     }
 
