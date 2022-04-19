@@ -18,7 +18,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/PointCloud.h>
@@ -40,10 +39,6 @@ private:
     ros::Publisher text_pub_;
     ros::Subscriber transform_sub_;
     ros::Subscriber depth_sub_;
-
-    ros::Subscriber objA_sub_;
-    ros::Subscriber objB_sub_;
-    ros::Subscriber objC_sub_;
 
     ros::Timer update_mesh_timer_;
     ros::Time begin = ros::Time::now();
@@ -78,11 +73,6 @@ public:
     void SynchronizationAndProcess();
     void DepthCallBack(const DepthMsgType& depth_image_msg); //(const DepthMsgType& depth_image_msg)
     void PoseCallBack(const PoseMsgType& pose_msg);
-
-    // Callbacks for other objects poses.
-    void ObjACallBack(const geometry_msgs::PoseWithCovarianceStamped& objA_pose_msg);
-    void ObjBCallBack(const geometry_msgs::PoseWithCovarianceStamped& objB_pose_msg);
-    void ObjCCallBack(const geometry_msgs::PoseWithCovarianceStamped& objC_pose_msg);
 
     void Visualization(OccupancyMap* occupancy_map, bool global_vis, const std::string& text);
     
@@ -121,10 +111,6 @@ Mapping<DepthMsgType, PoseMsgType>::Mapping(ros::NodeHandle node)
 
     transform_sub_ = node.subscribe("odometry", 10, &Mapping::PoseCallBack, this);
     depth_sub_ = node.subscribe("depth", 10, &Mapping::DepthCallBack, this);
-
-    objA_sub_ = node.subscribe("objA_pose", 10, &Mapping::ObjACallBack, this);
-    objB_sub_ = node.subscribe("objB_pose", 10, &Mapping::ObjBCallBack, this);
-    objC_sub_ = node.subscribe("objC_pose", 10, &Mapping::ObjCCallBack, this);
 
     occupancy_pub_ = node.advertise<sensor_msgs::PointCloud>("visualize_pointcloud", 1, true);
     text_pub_ = node.advertise<visualization_msgs::Marker>("text", 1, true);
