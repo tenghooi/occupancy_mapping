@@ -10,6 +10,8 @@ set(CMAKE_BUILD_TYPE "RELEASE")
 find_package(catkin REQUIRED COMPONENTS
              roscpp
              std_msgs
+             geometry_msgs
+             sensor_msgs
              nav_msgs
              visualization_msgs
              tf
@@ -63,5 +65,13 @@ target_link_libraries(occupancy_mapping
                       )
 # target_link_libraries(occupancy_mapping ${PCL_LIBRARIES} Eigen3::Eigen)
 
-
+add_executable(object_filter 
+               src/object_filter.cpp
+               include/object_filter.h
+               )
+target_link_libraries(object_filter 
+                      ${catkin_LIBRARIES}
+                      ${PCL_LIBRARIES}
+                      Eigen3::Eigen
+                      )
 
