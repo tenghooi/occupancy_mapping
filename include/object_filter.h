@@ -17,16 +17,18 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/crop_box.h>
 
-struct DynamicObject
-{
-    double upperbound_x;
-    double upperbound_y;
-    double upperbound_z;
-    double lowerbound_x;
-    double lowerbound_y;
-    double lowerbound_z;
-};
+void SetNodeParameters(const ros::NodeHandle& node);
 
+class DynamicObject
+{
+private:
+    Eigen::Vector4f max_vec_;
+    Eigen::Vector4f min_vec_;
+
+public:
+    void SetObjBBox();
+    void FilterObject();
+};
 
 
 
