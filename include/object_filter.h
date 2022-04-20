@@ -17,8 +17,6 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/crop_box.h>
 
-void SetNodeParameters(const ros::NodeHandle& node);
-
 class DynamicObject
 {
 private:
@@ -27,9 +25,12 @@ private:
 
 public:
     void SetObjBBox();
-    void FilterObject();
+    void FilterObject(pcl::PCLPointCloud2& point_cloud);
+
+    void MsgCallback();
 };
 
+void SetNodeParameters(const ros::NodeHandle& node);
 
 
 
