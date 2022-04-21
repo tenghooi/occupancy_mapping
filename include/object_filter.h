@@ -17,21 +17,64 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/crop_box.h>
 
+typedef geometry_msgs::PoseWithCovarianceStamped ObjectPoseType;
+typedef sensor_msgs::PointCloud2 PointCloudType;
+
+void SetNodeParameters(const ros::NodeHandle& node);
 class DynamicObject
 {
 private:
     Eigen::Vector4f max_vec_;
     Eigen::Vector4f min_vec_;
 
+    
+
 public:
+
     void SetObjBBox();
     void FilterObject(pcl::PCLPointCloud2& point_cloud);
 
-    void MsgCallback();
+    void MsgCallback(const ObjectPoseType::ConstPtr& obj_pose_msg);
 };
 
-void SetNodeParameters(const ros::NodeHandle& node);
+/**************************
+ ObjectsFiltering class to 
+ encapsulate and process
+ everything.
+ **************************/
+class ObjectsFiltering
+{
+private:
+    ros::Publisher filtered_cloud_pub_;
+    ros::Subscriber point_cloud_sub_;
 
+public:
+    ObjectsFiltering(ros::NodeHandle node);
+    ~ObjectsFiltering();
 
+    void CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg);
+};
+
+ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
+{
+    point_cloud_sub_ = node.subscribe("point_cloud", 10, &ObjectsFiltering::CloudCallBack, this);
+    filtered_cloud_pub_ = node.advertise<PointCloudType>("filtered_point_cloud", 10);
+}
+
+ObjectsFiltering::~ObjectsFiltering()
+{
+    
+}
+
+void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg)
+{
+
+    pcl::PCLPointCloud2 pcl_point_cloud;
+    pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
+    sensor_msgs::PointCloud2 filtered_point_cloud;
+    pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud); // Test water
+
+    filtered_cloud_pub_.publish(filtered_point_cloud);
+}
 
 #endif //_OBJECT_FILTER_H_
