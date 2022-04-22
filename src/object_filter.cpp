@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 {           
     ros::init(argc, argv, "object_filter");
     ros::NodeHandle node("~");
-
+    
     ObjectsFiltering objects_filter(node);
     
 

@@ -73,7 +73,7 @@ void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud
     pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
     sensor_msgs::PointCloud2 filtered_point_cloud;
     pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud); // Test water
-
+    std::cout << filtered_point_cloud.width << std::endl;
     filtered_cloud_pub_.publish(filtered_point_cloud);
 }
 
