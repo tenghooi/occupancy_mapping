@@ -1,0 +1,76 @@
+<launch>
+    <node pkg="occupancy_mapping" type="object_filter" name="object_filter" output="screen">
+
+        <!-- in meters -->
+        <param name="resolution" value="0.1"/>
+
+        <!-- Used in array structures only -->
+        <param name="bottom_left_x" value="-40.0"/>
+        <param name="bottom_left_y" value="-40.0"/>
+        <param name="bottom_left_z" value="-2"/>
+        <param name="upper_right_x" value="+40.0"/>
+        <param name="upper_right_y" value="+40.0"/>
+        <param name="upper_right_z" value="+6"/>
+
+        <!-- probabilistic grid map -->
+        <param name="prob_hit" value="0.55"/>
+        <param name="prob_miss" value="0.12"/>
+        <param name="prob_min" value="0.1"/>
+        <param name="prob_max" value="0.95"/>
+        <param name="prob_occupancy" value="0.85"/>
+
+        <!-- raycasting parameters -->
+        <param name="min_ray_length" value="0.5"/>
+        <param name="max_ray_length" value="5"/>
+
+        <!-- needed when using depth image-->
+        <!--        <param name="center_x" value="323.120483"/>-->
+        <!--        <param name="center_y" value="236.743210"/>-->
+        <!--        <param name="focal_x" value="385.754486"/>-->
+        <!--        <param name="focal_y" value="385.754486"/>-->
+        <param name="center_x" value="322.47735741936430"/>
+        <param name="center_y" value="237.07634648111778"/>
+        <param name="focal_length_x" value="384.45808939187248"/>
+        <param name="focal_length_y" value="383.98275569654390"/>
+
+        <!--depth_filter -->
+
+        <param name="use_depth_filter" value="false"/>
+        <param name="filter_max_depth" value="5.0"/>
+        <param name="filter_min_depth" value="1.0"/>
+        <param name="filter_tolerance" value="0.05"/>
+        <!--unit: pixel-->
+        <param name="depth_filter_margin" value="0"/>
+
+        <!-- global / local -->
+        <param name="global_map" value="true"/>
+        <param name="global_update" value="true"/>
+        <param name="global_vis" value="true"/>
+
+        <param name="update_occupancy_every_n_sec" value="0.1"/>
+        <!-- visulization -->
+        <!--0 for no visulize-->
+        <param name="visualize_every_n_updates" value="1"/>
+
+        <!-- Set margin from map boundary for publishing map point cloud -->
+        <!-- for visualization or other uses -->
+        <!-- Margin should be distances from map boundary in meter-->
+        <!-- 0 means same as the map boundary -->
+        <!-- Values must be in resolution precision and  >= 0.0 -->
+        <!-- Setting 0.4 in resolution 0.15 will set boundary at 0.3-->
+        <param name="vis_min_margin_x" value="0.0"/>
+        <param name="vis_min_margin_y" value="0.0"/>
+        <param name="vis_min_margin_z" value="1.9"/>
+        <param name="vis_max_margin_x" value="0.0"/>
+        <param name="vis_max_margin_y" value="0.0"/>
+        <param name="vis_max_margin_z" value="0.0"/>
+        <!-- publishing sensor_msgs::PointCloud header frame id -->
+        <param name="map_frame_id" value="camera_init"/>
+
+        <!-- subsribe source -->
+        
+        <remap from="~point_cloud" to="/os_cloud_node/points"/>
+
+    </node>
+
+</launch>
