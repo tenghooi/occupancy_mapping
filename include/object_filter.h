@@ -68,9 +68,13 @@ void DynamicObject::FilterObject(pcl::PCLPointCloud2& point_cloud)
 class ObjectsFiltering
 {
 private:
-    DynamicObject objA;
-    DynamicObject objB;
-    DynamicObject objC;
+    DynamicObject objA_;
+    DynamicObject objB_;
+    DynamicObject objC_;
+
+    std::queue<ObjectPoseType>objA_queue_;
+    std::queue<ObjectPoseType>objB_queue_;
+    std::queue<ObjectPoseType>objC_queue_;
 
     ros::Publisher filtered_cloud_pub_;
 
@@ -83,6 +87,8 @@ public:
     ObjectsFiltering(ros::NodeHandle node);
     ~ObjectsFiltering();
 
+    void FilterObjects(const PointCloudType& point_cloud);
+
     void CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg);
     void ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg);
     void ObjBPoseCallBack(const ObjectPoseType::ConstPtr& objB_pose_msg);
@@ -91,7 +97,7 @@ public:
 
 ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 {
-    SetNodeParameters(node, objA, objB, objC);
+    SetNodeParameters(node, objA_, objB_, objC_);
 
     point_cloud_sub_ = node.subscribe("raw_point_cloud", 10, &ObjectsFiltering::CloudCallBack, this);
     objA_pose_sub_ = node.subscribe("objA_pose", 10, &ObjectsFiltering::ObjAPoseCallBack, this);
@@ -101,20 +107,68 @@ ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
     filtered_cloud_pub_ = node.advertise<PointCloudType>("filtered_point_cloud", 10);
 }
 
-ObjectsFiltering::~ObjectsFiltering()
+ObjectsFiltering::~ObjectsFiltering(){}
+
+void ObjectsFiltering::FilterObjects(const PointCloudType& point_cloud)
 {
-    
+    ros::Duration time_tolerance(1e-3); // 1ms
+    ros::Time point_cloud_time = point_cloud.header.stamp;
+    ROS_INFO("Point cloud msg time: %lf", point_cloud_time.toSec());
+
+    pcl::PCLPointCloud2 pcl_point_cloud;
+    pcl_conversions::toPCL(point_cloud, pcl_point_cloud);
+
+    Eigen::Vector3d sync_pos_;
+
+    while(objA_queue_.size() > 1 &&
+          objA_queue_.front().header.stamp <= point_cloud_time + time_tolerance)
+    {
+        sync_pos_ << objA_queue_.front().pose.pose.position.x,
+                     objA_queue_.front().pose.pose.position.y,
+                     objA_queue_.front().pose.pose.position.z;
+
+        objA_queue_.pop();
+    }
 }
 
 void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg)
 {
 
-    pcl::PCLPointCloud2 pcl_point_cloud;
-    pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
-    sensor_msgs::PointCloud2 filtered_point_cloud;
-    pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud); // Test water
-    std::cout << filtered_point_cloud.width << std::endl;
-    filtered_cloud_pub_.publish(filtered_point_cloud);
+    //pcl::PCLPointCloud2 pcl_point_cloud;
+    //pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
+    FilterObjects(*point_cloud_msg);
+
+    //sensor_msgs::PointCloud2 filtered_point_cloud;
+    //pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud);
+    //std::cout << filtered_point_cloud.width << std::endl;
+    //filtered_cloud_pub_.publish(filtered_point_cloud);
+}
+
+void ObjectsFiltering::ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg)
+{
+    ObjectPoseType objA_pose;
+    objA_pose.header = objA_pose_msg->header;
+    objA_pose.pose = objA_pose_msg->pose;
+
+    objA_queue_.push(objA_pose);
+}
+
+void ObjectsFiltering::ObjBPoseCallBack(const ObjectPoseType::ConstPtr& objB_pose_msg)
+{
+    ObjectPoseType objB_pose;
+    objB_pose.header = objB_pose_msg->header;
+    objB_pose.pose = objB_pose_msg->pose;
+
+    objA_queue_.push(objB_pose);
+}
+
+void ObjectsFiltering::ObjCPoseCallBack(const ObjectPoseType::ConstPtr& objC_pose_msg)
+{
+    ObjectPoseType objC_pose;
+    objC_pose.header = objC_pose_msg->header;
+    objC_pose.pose = objC_pose_msg->pose;
+
+    objC_queue_.push(objC_pose);
 }
 
 #endif //_OBJECT_FILTER_H_
