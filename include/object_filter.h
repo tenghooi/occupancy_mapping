@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <memory>
 
 #include <Eigen/Eigen>
 
@@ -20,14 +21,20 @@
 typedef geometry_msgs::PoseWithCovarianceStamped ObjectPoseType;
 typedef sensor_msgs::PointCloud2 PointCloudType;
 
-void SetNodeParameters(const ros::NodeHandle& node);
+void SetNodeParameters(const ros::NodeHandle& node,
+                       DynamicObject& objA,
+                       DynamicObject& objB,
+                       DynamicObject& objC);
+
+/**************************
+ DynamicObject class to 
+ set object BBox and filtering
+ **************************/
 class DynamicObject
 {
 private:
     Eigen::Vector4f max_vec_;
     Eigen::Vector4f min_vec_;
-
-    
 
 public:
 
@@ -45,19 +52,36 @@ public:
 class ObjectsFiltering
 {
 private:
+    std::shared_ptr<DynamicObject> objA = std::make_shared<DynamicObject>();
+    std::shared_ptr<DynamicObject> objB = std::make_shared<DynamicObject>();
+    std::shared_ptr<DynamicObject> objC = std::make_shared<DynamicObject>();
+
     ros::Publisher filtered_cloud_pub_;
+
     ros::Subscriber point_cloud_sub_;
+    ros::Subscriber objA_pose_sub_;
+    ros::Subscriber objB_pose_sub_;
+    ros::Subscriber objC_pose_sub_;
 
 public:
     ObjectsFiltering(ros::NodeHandle node);
     ~ObjectsFiltering();
 
     void CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg);
+    void ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg);
+    void ObjBPoseCallBack(const ObjectPoseType::ConstPtr& objB_pose_msg);
+    void ObjCPoseCallBack(const ObjectPoseType::ConstPtr& objC_pose_msg);
 };
 
 ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 {
+    SetNodeParameters(node, objA, objB, objC);
+
     point_cloud_sub_ = node.subscribe("raw_point_cloud", 10, &ObjectsFiltering::CloudCallBack, this);
+    objA_pose_sub_ = node.subscribe("objA_pose", 10, &ObjectsFiltering::ObjAPoseCallBack, this);
+    objB_pose_sub_ = node.subscribe("objB_pose", 10, &ObjectsFiltering::ObjBPoseCallBack, this);
+    objC_pose_sub_ = node.subscribe("objC_pose", 10, &ObjectsFiltering::ObjCPoseCallBack, this);
+
     filtered_cloud_pub_ = node.advertise<PointCloudType>("filtered_point_cloud", 10);
 }
 
