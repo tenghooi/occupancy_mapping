@@ -40,7 +40,7 @@ public:
 /**************************
  ObjectsFiltering class to 
  encapsulate and process
- everything.
+ objects and filtering.
  **************************/
 class ObjectsFiltering
 {
@@ -57,7 +57,7 @@ public:
 
 ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 {
-    point_cloud_sub_ = node.subscribe("point_cloud", 10, &ObjectsFiltering::CloudCallBack, this);
+    point_cloud_sub_ = node.subscribe("raw_point_cloud", 10, &ObjectsFiltering::CloudCallBack, this);
     filtered_cloud_pub_ = node.advertise<PointCloudType>("filtered_point_cloud", 10);
 }
 
