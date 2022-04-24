@@ -37,12 +37,25 @@ private:
     Eigen::Vector4f min_vec_;
 
 public:
+    DynamicObject();
+    ~DynamicObject();
 
     void SetObjBBox();
     void FilterObject(pcl::PCLPointCloud2& point_cloud);
-
-    void MsgCallback(const ObjectPoseType::ConstPtr& obj_pose_msg);
 };
+
+DynamicObject::DynamicObject(){};
+DynamicObject::~DynamicObject(){};
+
+void DynamicObject::SetObjBBox()
+{
+
+}
+
+void DynamicObject::FilterObject(pcl::PCLPointCloud2& point_cloud)
+{
+
+}
 
 /**************************
  ObjectsFiltering class to 
