@@ -40,16 +40,19 @@ public:
     DynamicObject();
     ~DynamicObject();
 
-    void SetObjBBox();
+    void SetObjBBox(double& min_x, double& min_y, double& min_z,
+                    double& max_x, double& max_y, double& max_z);
     void FilterObject(pcl::PCLPointCloud2& point_cloud);
 };
 
 DynamicObject::DynamicObject(){};
 DynamicObject::~DynamicObject(){};
 
-void DynamicObject::SetObjBBox()
+void DynamicObject::SetObjBBox(double& min_x, double& min_y, double& min_z,
+                               double& max_x, double& max_y, double& max_z)
 {
-
+    min_vec_ << min_x, min_y, min_z, 1.0;
+    max_vec_ << max_x, max_y, max_z, 1.0;
 }
 
 void DynamicObject::FilterObject(pcl::PCLPointCloud2& point_cloud)
@@ -65,9 +68,9 @@ void DynamicObject::FilterObject(pcl::PCLPointCloud2& point_cloud)
 class ObjectsFiltering
 {
 private:
-    std::shared_ptr<DynamicObject> objA = std::make_shared<DynamicObject>();
-    std::shared_ptr<DynamicObject> objB = std::make_shared<DynamicObject>();
-    std::shared_ptr<DynamicObject> objC = std::make_shared<DynamicObject>();
+    DynamicObject objA;
+    DynamicObject objB;
+    DynamicObject objC;
 
     ros::Publisher filtered_cloud_pub_;
 
