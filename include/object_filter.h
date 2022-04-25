@@ -134,14 +134,14 @@ void ObjectsFiltering::FilterObjects(const PointCloudType& point_cloud)
 void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg)
 {
 
-    //pcl::PCLPointCloud2 pcl_point_cloud;
-    //pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
+    pcl::PCLPointCloud2 pcl_point_cloud;
+    pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
     FilterObjects(*point_cloud_msg);
 
-    //sensor_msgs::PointCloud2 filtered_point_cloud;
-    //pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud);
-    //std::cout << filtered_point_cloud.width << std::endl;
-    //filtered_cloud_pub_.publish(filtered_point_cloud);
+    sensor_msgs::PointCloud2 filtered_point_cloud;
+    pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud);
+    std::cout << filtered_point_cloud.width << std::endl;
+    filtered_cloud_pub_.publish(filtered_point_cloud);
 }
 
 void ObjectsFiltering::ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg)
