@@ -21,11 +21,6 @@
 typedef geometry_msgs::PoseWithCovarianceStamped ObjectPoseType;
 typedef sensor_msgs::PointCloud2 PointCloudType;
 
-void SetNodeParameters(const ros::NodeHandle& node,
-                       DynamicObject& objA,
-                       DynamicObject& objB,
-                       DynamicObject& objC);
-
 /**************************
  DynamicObject class to 
  set object BBox and filtering
@@ -99,6 +94,11 @@ public:
     void ObjCPoseCallBack(const ObjectPoseType::ConstPtr& objC_pose_msg);
 };
 
+void SetNodeParameters(const ros::NodeHandle& node,
+                       DynamicObject& objA,
+                       DynamicObject& objB,
+                       DynamicObject& objC);
+                       
 ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 {
     SetNodeParameters(node, objA_, objB_, objC_);
@@ -175,5 +175,6 @@ void ObjectsFiltering::ObjCPoseCallBack(const ObjectPoseType::ConstPtr& objC_pos
 
     objC_queue_.push(objC_pose);
 }
+
 
 #endif //_OBJECT_FILTER_H_

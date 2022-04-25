@@ -4,27 +4,27 @@
         <!-- in meters -->
         <param name="resolution" value="0.1"/>
 
-        <!-- Set object A bounding box in meters -->
+        <!-- Set objects bounding box in meters -->
         <!-- min x, y, z set min vector; vice versa for max vector -->
         <param name="objA_min_x" value="-0.5"/>
-        <param name="objA_min_z" value="-0.5"/>
         <param name="objA_min_y" value="-0.5"/>
+        <param name="objA_min_z" value="-0.5"/>
         <param name="objA_max_x" value="0.5"/>
         <param name="objA_max_y" value="0.5"/>
         <param name="objA_max_z" value="0.5"/>
 
         <!-- Set object B bounding box -->
-        <param name="objB_min_z" value="-0.5"/>
-        <param name="objB_min_y" value="-0.5"/>
-        <param name="objB_max_x" value="0.5"/>
         <param name="objB_min_x" value="-0.5"/>
+        <param name="objB_min_y" value="-0.5"/>
+        <param name="objB_min_z" value="-0.5"/>
+        <param name="objB_max_x" value="0.5"/>
         <param name="objB_max_y" value="0.5"/>
         <param name="objB_max_z" value="0.5"/>
 
         <!-- Set object C bounding box -->
         <param name="objC_min_x" value="-0.5"/>
-        <param name="objC_min_z" value="-0.5"/>
         <param name="objC_min_y" value="-0.5"/>
+        <param name="objC_min_z" value="-0.5"/>
         <param name="objC_max_x" value="0.5"/>
         <param name="objC_max_y" value="0.5"/>
         <param name="objC_max_z" value="0.5"/>
