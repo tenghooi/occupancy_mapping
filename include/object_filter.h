@@ -57,7 +57,11 @@ void DynamicObject::SetObjBBox(double& min_x, double& min_y, double& min_z,
 
 void DynamicObject::FilterObject(pcl::PCLPointCloud2& point_cloud)
 {
+    pcl::CropBox<pcl::PCLPointCloud2> box_filter;
+    box_filter.setMax(max_vec_);
+    box_filter.setMin(min_vec_);
 
+    box_filter.filter(point_cloud);
 }
 
 /**************************
@@ -129,6 +133,7 @@ void ObjectsFiltering::FilterObjects(const PointCloudType& point_cloud)
 
         objA_queue_.pop();
     }
+    objA_.FilterObject(pcl_point_cloud);
 }
 
 void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg)
