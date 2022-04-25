@@ -1,0 +1,9 @@
+<launch>
+
+	<include file="$(find occupancy_mapping)/launch/occupancy_mapping.launch" />
+
+	<include file="$(find occupancy_mapping)/launch/object_filter.launch" />
+
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find occupancy_mapping)/rviz/jackal_axes.rviz"/>
+
+</launch>

@@ -76,7 +76,7 @@
     <remap from="~odometry" to="/aft_mapped_to_init_high_frec"/>
 
     <!--remap from="~odometry" to="/os_cloud_node/imu"/-->
-	<remap from="~depth" to="/os_cloud_node/points"/>
+	<remap from="~depth" to="/filtered_point_cloud"/>
 
     </node>
 
