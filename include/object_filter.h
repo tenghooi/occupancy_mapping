@@ -36,6 +36,7 @@ public:
     ~DynamicObject();
 
     Eigen::Vector4f GetMaxVec() const;
+    Eigen::Vector4f GetMinVec() const;
 
     void SetMinMaxVec(double& min_x, double& min_y, double& min_z,
                    double& max_x, double& max_y, double& max_z);
@@ -51,6 +52,11 @@ DynamicObject::~DynamicObject(){};
 Eigen::Vector4f DynamicObject::GetMaxVec() const
 {
     return max_vec_;
+}
+
+Eigen::Vector4f DynamicObject::GetMinVec() const
+{
+    return min_vec_;
 }
 
 void DynamicObject::SetMinMaxVec(double& min_x, double& min_y, double& min_z,
@@ -74,6 +80,15 @@ void DynamicObject::FilterObject(pcl::PCLPointCloud2ConstPtr point_cloud,
     box_filter.filter(filtered_cloud);
 }
 
+/******************************
+ Setting node parameters for
+ node and DynamicObject objects
+ *****************************/
+void SetNodeParameters(const ros::NodeHandle& node,
+                       DynamicObject& objA,
+                       DynamicObject& objB,
+                       DynamicObject& objC);
+                       
 /**************************
  ObjectsFiltering class to 
  encapsulate and process
@@ -108,11 +123,6 @@ public:
     void ObjBPoseCallBack(const ObjectPoseType::ConstPtr& objB_pose_msg);
     void ObjCPoseCallBack(const ObjectPoseType::ConstPtr& objC_pose_msg);
 };
-
-void SetNodeParameters(const ros::NodeHandle& node,
-                       DynamicObject& objA,
-                       DynamicObject& objB,
-                       DynamicObject& objC);
                        
 ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 {
