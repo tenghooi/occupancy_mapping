@@ -31,30 +31,48 @@ private:
     Eigen::Vector4f max_vec_;
     Eigen::Vector4f min_vec_;
 
+    Eigen::Vector4f box_min_vec_;
+    Eigen::Vector4f box_max_vec_;
+
 public:
     DynamicObject();
     ~DynamicObject();
 
-    void SetObjBBox(double& min_x, double& min_y, double& min_z,
-                    double& max_x, double& max_y, double& max_z);
+    void SetMinMaxVec(double& min_x, double& min_y, double& min_z,
+                   double& max_x, double& max_y, double& max_z);
+
+    void SetObjBBox(const Eigen::Vector3d& obj_pose);
+
     void FilterObject(pcl::PCLPointCloud2& point_cloud);
 };
 
 DynamicObject::DynamicObject(){};
 DynamicObject::~DynamicObject(){};
 
-void DynamicObject::SetObjBBox(double& min_x, double& min_y, double& min_z,
-                               double& max_x, double& max_y, double& max_z)
+void DynamicObject::SetMinMaxVec(double& min_x, double& min_y, double& min_z,
+                                 double& max_x, double& max_y, double& max_z)
 {
     min_vec_ << min_x, min_y, min_z, 1.0;
+
     max_vec_ << max_x, max_y, max_z, 1.0;
+}
+
+void DynamicObject::SetObjBBox(const Eigen::Vector3d& obj_pose)
+{
+    box_min_vec_ << min_vec_[0] - obj_pose[0], 
+                    min_vec_[1] - obj_pose[1],
+                    min_vec_[2] - obj_pose[2], 1.0;
+
+    box_max_vec_ << max_vec_[0] + obj_pose[0], 
+                    max_vec_[1] + obj_pose[1],
+                    max_vec_[2] + obj_pose[2], 1.0;
 }
 
 void DynamicObject::FilterObject(pcl::PCLPointCloud2& point_cloud)
 {
     pcl::CropBox<pcl::PCLPointCloud2> box_filter;
-    box_filter.setMax(max_vec_);
-    box_filter.setMin(min_vec_);
+    box_filter.setMax(box_max_vec_);
+    box_filter.setMin(box_min_vec_);
 
     box_filter.filter(point_cloud);
 }
@@ -86,7 +104,7 @@ public:
     ObjectsFiltering(ros::NodeHandle node);
     ~ObjectsFiltering();
 
-    void FilterObjects(const PointCloudType& point_cloud);
+    void FilterObjects(pcl::PCLPointCloud2& point_cloud);
 
     void CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg);
     void ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg);
@@ -113,14 +131,11 @@ ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 
 ObjectsFiltering::~ObjectsFiltering(){}
 
-void ObjectsFiltering::FilterObjects(const PointCloudType& point_cloud)
+void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2& point_cloud)
 {
     ros::Duration time_tolerance(1e-3); // 1ms
-    ros::Time point_cloud_time = point_cloud.header.stamp;
+    ros::Time point_cloud_time = pcl_conversions::fromPCL(point_cloud.header.stamp);
     ROS_INFO("Point cloud msg time: %lf", point_cloud_time.toSec());
-
-    pcl::PCLPointCloud2 pcl_point_cloud;
-    pcl_conversions::toPCL(point_cloud, pcl_point_cloud);
 
     Eigen::Vector3d sync_pos_;
 
@@ -133,7 +148,9 @@ void ObjectsFiltering::FilterObjects(const PointCloudType& point_cloud)
 
         objA_queue_.pop();
     }
-    objA_.FilterObject(pcl_point_cloud);
+
+    objA_.SetObjBBox(sync_pos_);
+    objA_.FilterObject(point_cloud);
 }
 
 void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg)
@@ -141,11 +158,11 @@ void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud
 
     pcl::PCLPointCloud2 pcl_point_cloud;
     pcl_conversions::toPCL(*point_cloud_msg, pcl_point_cloud);
-    FilterObjects(*point_cloud_msg);
+    FilterObjects(pcl_point_cloud);
 
     sensor_msgs::PointCloud2 filtered_point_cloud;
     pcl_conversions::moveFromPCL(pcl_point_cloud, filtered_point_cloud);
-    std::cout << filtered_point_cloud.width << std::endl;
+    //std::cout << filtered_point_cloud.width << std::endl;
     filtered_cloud_pub_.publish(filtered_point_cloud);
 }
 
