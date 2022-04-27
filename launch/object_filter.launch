@@ -6,12 +6,12 @@
 
         <!-- Set objects bounding box in meters -->
         <!-- min x, y, z set min vector; vice versa for max vector -->
-        <param name="objA_min_x" value="-0.5"/>
-        <param name="objA_min_y" value="-0.5"/>
-        <param name="objA_min_z" value="-0.5"/>
-        <param name="objA_max_x" value="0.5"/>
-        <param name="objA_max_y" value="0.5"/>
-        <param name="objA_max_z" value="0.5"/>
+        <param name="objA_min_x" value="-0.7"/>
+        <param name="objA_min_y" value="-0.7"/>
+        <param name="objA_min_z" value="-3.0"/>
+        <param name="objA_max_x" value="0.7"/>
+        <param name="objA_max_y" value="0.7"/>
+        <param name="objA_max_z" value="3.0"/>
 
         <!-- Set object B bounding box -->
         <param name="objB_min_x" value="-0.5"/>
@@ -33,7 +33,7 @@
         <remap from="~raw_point_cloud" to="/os_cloud_node/points"/>
 
         <!-- subscribe object poses -->
-        <remap from="~objA_pose" to="/objA/pose"/>
+        <remap from="~objA_pose" to="/pose_publisher/pose"/>
         <remap from="~objB_pose" to="/objB/pose"/>
         <remap from="~objC_pose" to="/objC/pose"/>
 
