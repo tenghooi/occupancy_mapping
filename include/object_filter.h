@@ -41,9 +41,9 @@ public:
     void SetMinMaxVec(double& min_x, double& min_y, double& min_z,
                    double& max_x, double& max_y, double& max_z);
 
-    void FilterObject(pcl::PCLPointCloud2ConstPtr point_cloud, 
+    void FilterObject(pcl::PCLPointCloud2Ptr point_cloud, 
                       pcl::PCLPointCloud2& filtered_cloud,
-                      const Eigen::Vector3d& sync_pose);
+                      const Eigen::Vector3f& sync_pose);
 };
 
 DynamicObject::DynamicObject(){};
@@ -66,18 +66,19 @@ void DynamicObject::SetMinMaxVec(double& min_x, double& min_y, double& min_z,
     max_vec_ << max_x, max_y, max_z, 1.0;
 }
 
-void DynamicObject::FilterObject(pcl::PCLPointCloud2ConstPtr point_cloud, 
+void DynamicObject::FilterObject(pcl::PCLPointCloud2Ptr point_cloud, 
                                  pcl::PCLPointCloud2& filtered_cloud,
-                                 const Eigen::Vector3d& sync_pose)
+                                 const Eigen::Vector3f& sync_pose)
 {
     pcl::CropBox<pcl::PCLPointCloud2> box_filter;
     box_filter.setInputCloud(point_cloud);
     box_filter.setMax(max_vec_);
     box_filter.setMin(min_vec_);
-    box_filter.setTranslation(sync_pose.cast<float>());
+    box_filter.setTranslation(sync_pose);
     box_filter.setNegative(true);
 
     box_filter.filter(filtered_cloud);
+    std::cout << "::" << filtered_cloud.width << std::endl;
 }
 
 /******************************
@@ -88,7 +89,7 @@ void SetNodeParameters(const ros::NodeHandle& node,
                        DynamicObject& objA,
                        DynamicObject& objB,
                        DynamicObject& objC);
-                       
+
 /**************************
  ObjectsFiltering class to 
  encapsulate and process
@@ -116,7 +117,7 @@ public:
     ObjectsFiltering(ros::NodeHandle node);
     ~ObjectsFiltering();
 
-    void FilterObjects(pcl::PCLPointCloud2ConstPtr point_cloud, pcl::PCLPointCloud2& filtered_cloud);
+    void FilterObjects(pcl::PCLPointCloud2Ptr point_cloud, pcl::PCLPointCloud2& filtered_cloud);
 
     void CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg);
     void ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg);
@@ -138,33 +139,59 @@ ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 
 ObjectsFiltering::~ObjectsFiltering(){}
 
-void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2ConstPtr point_cloud, pcl::PCLPointCloud2& filtered_cloud)
+void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr point_cloud, pcl::PCLPointCloud2& filtered_cloud)
 {
     ros::Duration time_tolerance(1e-3); // 1ms
     //ros::Time point_cloud_time = pcl_conversions::fromPCL(point_cloud.header.stamp);
     ros::Time point_cloud_time = ros::Time::now();
     ROS_INFO("Point cloud msg time: %lf", point_cloud_time.toSec());
 
-    Eigen::Vector3d sync_pos_;
+    Eigen::Vector3f sync_objA_pos;
+    Eigen::Vector3f sync_objB_pos;
+    Eigen::Vector3f sync_objC_pos;
 
     while(objA_queue_.size() > 1 &&
           objA_queue_.front().header.stamp <= point_cloud_time + time_tolerance)
     {
-        sync_pos_ << objA_queue_.front().pose.pose.position.x,
+        sync_objA_pos << objA_queue_.front().pose.pose.position.x,
                      objA_queue_.front().pose.pose.position.y,
                      objA_queue_.front().pose.pose.position.z;
 
         objA_queue_.pop();
     }
+
+    while(objB_queue_.size() > 1 &&
+          objB_queue_.front().header.stamp <= point_cloud_time + time_tolerance)
+    {
+        sync_objB_pos << objB_queue_.front().pose.pose.position.x,
+                     objB_queue_.front().pose.pose.position.y,
+                     objB_queue_.front().pose.pose.position.z;
+
+        objB_queue_.pop();
+    }
+
+    while(objC_queue_.size() > 1 &&
+          objC_queue_.front().header.stamp <= point_cloud_time + time_tolerance)
+    {
+        sync_objC_pos << objC_queue_.front().pose.pose.position.x,
+                     objC_queue_.front().pose.pose.position.y,
+                     objC_queue_.front().pose.pose.position.z;
+
+        objC_queue_.pop();
+    }
+    
+    objA_.FilterObject(point_cloud, filtered_cloud, sync_objA_pos);
+    *point_cloud = filtered_cloud;
+    filtered_cloud.data.clear();
+    objB_.FilterObject(point_cloud, filtered_cloud, sync_objB_pos);
     
     
-    objA_.FilterObject(point_cloud, filtered_cloud, sync_pos_);
 }
 
 void ObjectsFiltering::CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg)
 {
     pcl::PCLPointCloud2* pcl_point_cloud = new pcl::PCLPointCloud2;
-    pcl::PCLPointCloud2ConstPtr pcl_point_cloud_ptr(pcl_point_cloud);
+    pcl::PCLPointCloud2Ptr pcl_point_cloud_ptr(pcl_point_cloud);
     pcl::PCLPointCloud2 filtered_pcl_point_cloud;
 
     pcl_conversions::toPCL(*point_cloud_msg, *pcl_point_cloud);
