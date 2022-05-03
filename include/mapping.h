@@ -146,24 +146,27 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
         Eigen::Vector3d transformed_point = Eigen::Vector3d(tmp_point[0], tmp_point[1], tmp_point[2]) / tmp_point[3];
 
         int tmp_indx;
-        double length = (transformed_point - raycast_origin_).norm();
-        
+        //double length = (transformed_point - raycast_origin_).norm();
+        double length = Eigen::Vector3d(point.x, point.y, point.z).norm();
+
         if (length < parameters_.min_ray_length)
             continue;
-        else if (length > parameters_.max_ray_length)
+        else if (length >= parameters_.max_ray_length)
         {
             // Normalizes the vector and set to max_ray_length. Set the measured point voxel occupancy to 0.
-            // transformed_point = (transformed_point - raycast_origin_) / length
+            //transformed_point = (transformed_point - raycast_origin_) / length
             //                     * parameters_.max_ray_length + raycast_origin_; 
-            // tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
-            continue;
+            transformed_point = (Eigen::Vector3d(point.x, point.y, point.z)) / length
+                                 * parameters_.max_ray_length + raycast_origin_; 
+            tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
+            //continue;
         }
         else
         {
             tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 1);
         }
 
-        if(tmp_indx != -10000)
+        if(tmp_indx != -10000) // if tmp_indx is not undefined
         {
             if(set_occ_[tmp_indx] == tt)
                 continue;
@@ -176,23 +179,24 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
                      traversed_voxels);
         
         // Set occupancy 0 for all traversed voxels except the measured one.
-        for (size_t i = traversed_voxels.size() - 2; i >= 0; i--)
+        for (size_t i = traversed_voxels.size() - 1; i >= 0; i--)
         {
             Eigen::Vector3d current_voxel = (traversed_voxels[i] + half) * parameters_.resolution;
 
             length = (current_voxel - raycast_origin_).norm();
             if (length < parameters_.min_ray_length)
-                    break;
-            if (length > parameters_.max_ray_length)
-                continue;
-
+                break;
+            //if (length > parameters_.max_ray_length)
+                
+            //    continue;
+    
             int tmp_indx;
             tmp_indx = occupancy_map_->SetOccupancy(current_voxel, 0);
 
             if (tmp_indx != -10000)
             {
                 if (set_free_[tmp_indx] == tt)
-                {
+                {   
                     if (++count >= 1)
                     {
                         count = 0;
@@ -268,6 +272,7 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         while (transform_queue_.size() > 1 && 
                std::get<0>(transform_queue_.front()) <= depth_msg_time + ros::Duration(time_delay))
         {
+            ROS_INFO("Pose msg time: %lf", std::get<0>(transform_queue_.front()).toSec());
             sync_pos_ = std::get<1>(transform_queue_.front());
             sync_q_ = std::get<2>(transform_queue_.front());
             transform_queue_.pop();
@@ -300,7 +305,7 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         transform_(3, 3) = 1;
         //transform_ = transform_ * parameters_.T_D_B * parameters_.T_Body_Camera;
         transform_ = transform_ ;
-
+        
         raycast_origin_ = Eigen::Vector3d(transform_(0, 3), transform_(1, 3), transform_(2, 3))/transform_(3, 3);
 
         if constexpr(std::is_same<DepthMsgType, sensor_msgs::Image::ConstPtr>::value) 
@@ -319,10 +324,10 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
             continue;
         }
 
-        {
+        
         int tt = ++total_;
         RayCastingProcess(cloud_.points.size(), tt);
-        }
+        
         
         depth_image_queue_.pop();
 
