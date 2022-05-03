@@ -76,7 +76,7 @@ public:
 
     void Visualization(OccupancyMap* occupancy_map, bool global_vis, const std::string& text);
     
-    void UpdateOccupancyEvent(const ros::TimerEvent & /*event*/);
+    void UpdateOccupancyEvent(const ros::TimerEvent& /*event*/);
 };
 
 
@@ -334,9 +334,8 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthCallBack(const DepthMsgType& depth
     //ROS_INFO("Initial time: %d", begin);
     std_msgs::Header header;
 
-    ros::Duration duration = ros::Time::now() - begin;
-    header.stamp.sec = duration.sec;
-    header.stamp.nsec = duration.nsec;
+    double duration = (ros::Time::now() - begin).toSec();
+    header.stamp = ros::Time().fromSec(duration);
 
     //ROS_INFO("Depth call back time: %lf", header.stamp.toSec());
     //ROS_INFO("Depth msg added");
@@ -351,10 +350,7 @@ void Mapping<DepthMsgType, PoseMsgType>::PoseCallBack(const PoseMsgType& pose_ms
     Eigen::Quaterniond q;
     std_msgs::Header header;
 
-    //ros::Duration dduration = ros::Time::now() - begin;
     double duration = (ros::Time::now() - begin).toSec();
-    //header.stamp.sec = dduration.sec;
-    //header.stamp.nsec = dduration.nsec;
     header.stamp = ros::Time().fromSec(duration);
 
     pos << pose_msg->pose.pose.position.x, 
