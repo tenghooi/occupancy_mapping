@@ -257,7 +257,7 @@ template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
 {
     ros::Time depth_msg_time;
-    double time_delay = 3e-3;
+    double time_delay = 3e-3; // 3ms
 
     while(!depth_image_queue_.empty())
     {
@@ -275,6 +275,7 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
             new_pose = true;
         }
 
+        // no pose msgs or not process by above while loop
         if (transform_queue_.empty() ||
             std::get<0>(transform_queue_.front()) <= depth_msg_time + ros::Duration(time_delay))
         {
@@ -306,7 +307,7 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         {
             DepthConversion();
         } 
-         else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
+        else if constexpr(std::is_same<DepthMsgType, sensor_msgs::PointCloud2::ConstPtr>::value) 
         {
             sensor_msgs::PointCloud2::ConstPtr tmp = std::get<1>(depth_image_queue_.front());
             pcl::fromROSMsg(*tmp, cloud_);
