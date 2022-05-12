@@ -181,9 +181,9 @@ void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr point_cloud, pcl::PC
     }
     
     objA_.FilterObject(point_cloud, filtered_cloud, sync_objA_pos);
-    *point_cloud = filtered_cloud;
-    filtered_cloud.data.clear();
-    objB_.FilterObject(point_cloud, filtered_cloud, sync_objB_pos);
+    // *point_cloud = filtered_cloud;
+    // filtered_cloud.data.clear();
+    // objB_.FilterObject(point_cloud, filtered_cloud, sync_objB_pos);
     
     
 }

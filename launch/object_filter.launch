@@ -33,8 +33,8 @@
         <remap from="~raw_point_cloud" to="/os_cloud_node/points"/>
 
         <!-- subscribe object poses -->
-        <remap from="~objA_pose" to="/pose_publisher/pose"/>
-        <remap from="~objB_pose" to="/objB/pose"/>
+        <remap from="~objA_pose" to="/pose_A"/>
+        <remap from="~objB_pose" to="/pose_B"/>
         <remap from="~objC_pose" to="/objC/pose"/>
 
     </node>
