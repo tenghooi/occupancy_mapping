@@ -16,7 +16,9 @@
 
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/filters/filter_indices.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/segmentation/min_cut_segmentation.h>
 
 typedef geometry_msgs::PoseWithCovarianceStamped ObjectPoseType;
 typedef sensor_msgs::PointCloud2 PointCloudType;
