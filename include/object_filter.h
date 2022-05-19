@@ -16,7 +16,9 @@
 
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/filters/filter_indices.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/segmentation/min_cut_segmentation.h>
 
 typedef geometry_msgs::PoseWithCovarianceStamped ObjectPoseType;
 typedef sensor_msgs::PointCloud2 PointCloudType;
@@ -86,6 +88,9 @@ void DynamicObject::FilterObject(pcl::PCLPointCloud2Ptr point_cloud,
  node and DynamicObject objects
  *****************************/
 void SetNodeParameters(const ros::NodeHandle& node,
+                       Eigen::Vector4f& raw_cloud_max_vec,
+                       Eigen::Vector4f& raw_cloud_min_vec,
+                       DynamicObject& self,
                        DynamicObject& objA,
                        DynamicObject& objB,
                        DynamicObject& objC);
@@ -98,9 +103,13 @@ void SetNodeParameters(const ros::NodeHandle& node,
 class ObjectsFiltering
 {
 private:
+    DynamicObject self_;
     DynamicObject objA_;
     DynamicObject objB_;
     DynamicObject objC_;
+
+    Eigen::Vector4f raw_cloud_max_vec_;
+    Eigen::Vector4f raw_cloud_min_vec_;
 
     std::queue<ObjectPoseType>objA_queue_;
     std::queue<ObjectPoseType>objB_queue_;
@@ -117,8 +126,10 @@ public:
     ObjectsFiltering(ros::NodeHandle node);
     ~ObjectsFiltering();
 
-    void FilterObjects(pcl::PCLPointCloud2Ptr point_cloud, pcl::PCLPointCloud2& filtered_cloud);
-
+    void CropCloud(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud);
+    void RemoveSelf(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud);
+    void FilterObjects(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& filtered_cloud);
+    
     void CloudCallBack(const PointCloudType::ConstPtr& point_cloud_msg);
     void ObjAPoseCallBack(const ObjectPoseType::ConstPtr& objA_pose_msg);
     void ObjBPoseCallBack(const ObjectPoseType::ConstPtr& objB_pose_msg);
@@ -127,19 +138,38 @@ public:
                        
 ObjectsFiltering::ObjectsFiltering(ros::NodeHandle node)
 {
-    SetNodeParameters(node, objA_, objB_, objC_);
+    SetNodeParameters(node, raw_cloud_max_vec_, raw_cloud_min_vec_,
+                      self_, objA_, objB_, objC_);
 
     point_cloud_sub_ = node.subscribe("raw_point_cloud", 10, &ObjectsFiltering::CloudCallBack, this);
-    objA_pose_sub_ = node.subscribe("objA_pose", 10, &ObjectsFiltering::ObjAPoseCallBack, this);
-    objB_pose_sub_ = node.subscribe("objB_pose", 10, &ObjectsFiltering::ObjBPoseCallBack, this);
-    objC_pose_sub_ = node.subscribe("objC_pose", 10, &ObjectsFiltering::ObjCPoseCallBack, this);
+    objA_pose_sub_ = node.subscribe("objA_pose", 20, &ObjectsFiltering::ObjAPoseCallBack, this);
+    objB_pose_sub_ = node.subscribe("objB_pose", 20, &ObjectsFiltering::ObjBPoseCallBack, this);
+    objC_pose_sub_ = node.subscribe("objC_pose", 20, &ObjectsFiltering::ObjCPoseCallBack, this);
 
     filtered_cloud_pub_ = node.advertise<PointCloudType>("filtered_point_cloud", 10);
 }
 
 ObjectsFiltering::~ObjectsFiltering(){}
 
-void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr point_cloud, pcl::PCLPointCloud2& filtered_cloud)
+void ObjectsFiltering::CropCloud(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud)
+{
+    pcl::CropBox<pcl::PCLPointCloud2> box_filter;
+
+    box_filter.setInputCloud(input_cloud);
+    box_filter.setMax(raw_cloud_max_vec_);
+    box_filter.setMin(raw_cloud_min_vec_);
+
+    box_filter.filter(output_cloud);
+    std::cout << "Cropped raw point cloud size: " << output_cloud.width << std::endl;
+}
+
+void ObjectsFiltering::RemoveSelf(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud)
+{
+    //TODO
+}
+
+
+void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& filtered_cloud)
 {
     ros::Duration time_tolerance(1e-3); // 1ms
     //ros::Time point_cloud_time = pcl_conversions::fromPCL(point_cloud.header.stamp);
@@ -180,7 +210,7 @@ void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr point_cloud, pcl::PC
         objC_queue_.pop();
     }
     
-    objA_.FilterObject(point_cloud, filtered_cloud, sync_objA_pos);
+    objA_.FilterObject(input_cloud, filtered_cloud, sync_objA_pos);
     // *point_cloud = filtered_cloud;
     // filtered_cloud.data.clear();
     // objB_.FilterObject(point_cloud, filtered_cloud, sync_objB_pos);

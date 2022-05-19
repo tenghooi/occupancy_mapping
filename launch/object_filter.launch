@@ -4,13 +4,19 @@
         <!-- in meters -->
         <param name="resolution" value="0.1"/>
 
-        <!-- Set objects bounding box in meters -->
+        <!-- TODO -->
+        <!-- Set crop box param to reduce raw point cloud size -->
+
+        <!-- TODO -->
+        <!-- Set robot own self crop box in meters -->
+
+        <!-- Set objects crop box in meters -->
         <!-- min x, y, z set min vector; vice versa for max vector -->
-        <param name="objA_min_x" value="-0.7"/>
-        <param name="objA_min_y" value="-0.7"/>
+        <param name="objA_min_x" value="-0.5"/>
+        <param name="objA_min_y" value="-0.5"/>
         <param name="objA_min_z" value="-3.0"/>
-        <param name="objA_max_x" value="0.7"/>
-        <param name="objA_max_y" value="0.7"/>
+        <param name="objA_max_x" value="0.5"/>
+        <param name="objA_max_y" value="0.5"/>
         <param name="objA_max_z" value="3.0"/>
 
         <!-- Set object B bounding box -->

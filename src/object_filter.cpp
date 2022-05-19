@@ -1,10 +1,36 @@
 #include "object_filter.h"
 
 void SetNodeParameters(const ros::NodeHandle& node,
+                       Eigen::Vector4f& raw_cloud_max_vec,
+                       Eigen::Vector4f& raw_cloud_min_vec,
+                       DynamicObject& self,
                        DynamicObject& objA,
                        DynamicObject& objB,
                        DynamicObject& objC)
 {   
+    // To set box vectors for downsizing raw point cloud
+    double cloud_min_x, cloud_min_y, cloud_min_z;
+    double cloud_max_x, cloud_max_y, cloud_max_z;
+    node.param<double>("cloud_min_x", cloud_min_x, 0.0);
+    node.param<double>("cloud_min_y", cloud_min_y, 0.0);
+    node.param<double>("cloud_min_z", cloud_min_z, 0.0);
+    node.param<double>("cloud_max_x", cloud_max_x, 0.0);
+    node.param<double>("cloud_max_y", cloud_max_y, 0.0);
+    node.param<double>("cloud_max_z", cloud_max_z, 0.0);
+    raw_cloud_max_vec << cloud_max_x, cloud_max_y, cloud_max_z, 1.0;
+    raw_cloud_min_vec << cloud_min_x, cloud_min_y, cloud_min_z, 1.0;
+
+    // To set box vectors for cropping out own self in point cloud
+    double self_min_x, self_min_y, self_min_z;
+    double self_max_x, self_max_y, self_max_z;
+    node.param<double>("self_min_x", self_min_x, 0.0);
+    node.param<double>("self_min_y", self_min_y, 0.0);
+    node.param<double>("self_min_z", self_min_z, 0.0);
+    node.param<double>("self_max_x", self_max_x, 0.0);
+    node.param<double>("self_max_y", self_max_y, 0.0);
+    node.param<double>("self_max_z", self_max_z, 0.0);
+    self.SetMinMaxVec(self_min_x, self_min_y, self_min_z, self_max_x, self_max_y, self_max_z);
+
     double objA_min_x, objA_min_y, objA_min_z;
     double objA_max_x, objA_max_y, objA_max_z;
     node.param<double>("objA_min_x", objA_min_x, 0.0);
