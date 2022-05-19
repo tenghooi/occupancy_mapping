@@ -129,12 +129,8 @@ Mapping<DepthMsgType, PoseMsgType>::~Mapping()
 template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_points, int tt)
 {
-    Eigen::Vector3d half = {0.5, 0.5, 0.5};
-
     for(int indx = 0; indx < number_depth_points; indx++)
     {
-        std::vector<Eigen::Vector3d> traversed_voxels;
-
         pcl::PointXYZ point = cloud_.points[indx];
         int count = 0;
 
@@ -145,25 +141,26 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
                               Eigen::Vector4d(point.x, point.y, point.z, 1);
         Eigen::Vector3d transformed_point = Eigen::Vector3d(tmp_point[0], tmp_point[1], tmp_point[2]) / tmp_point[3];
 
-        int tmp_indx;
+        int tmp_indx = 0;
         //double length = (transformed_point - raycast_origin_).norm();
         double length = Eigen::Vector3d(point.x, point.y, point.z).norm();
 
         if (length < parameters_.min_ray_length)
             continue;
-        else if (length >= parameters_.max_ray_length)
+        else if (length > parameters_.max_ray_length)
         {
             // Normalizes the vector and set to max_ray_length. Set the measured point voxel occupancy to 0.
-            //transformed_point = (transformed_point - raycast_origin_) / length
-            //                     * parameters_.max_ray_length + raycast_origin_; 
-            transformed_point = (Eigen::Vector3d(point.x, point.y, point.z)) / length
+            transformed_point = (transformed_point - raycast_origin_) / length
                                  * parameters_.max_ray_length + raycast_origin_; 
-            tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
+            //transformed_point = (Eigen::Vector3d(point.x, point.y, point.z)) / length
+            //                     * parameters_.max_ray_length + raycast_origin_; 
+            //tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 0);
             //continue;
         }
         else
         {
             tmp_indx = occupancy_map_->SetOccupancy(transformed_point, 1);
+
         }
 
         if(tmp_indx != -10000) // if tmp_indx is not undefined
@@ -174,25 +171,28 @@ void Mapping<DepthMsgType, PoseMsgType>::RayCastingProcess(int number_depth_poin
                 set_occ_[tmp_indx] = tt;
         }
 
+        std::vector<Eigen::Vector3d> traversed_voxels;
+
         RayCasting3D(raycast_origin_/parameters_.resolution,
                      transformed_point/parameters_.resolution,
                      traversed_voxels);
         
+        Eigen::Vector3d half = {0.5, 0.5, 0.5};
+
         // Set occupancy 0 for all traversed voxels except the measured one.
-        for (size_t i = traversed_voxels.size() - 1; i >= 0; i--)
+        for (size_t i = traversed_voxels.size() - 2; i >= 0; i--)
         {
             Eigen::Vector3d current_voxel = (traversed_voxels[i] + half) * parameters_.resolution;
 
             length = (current_voxel - raycast_origin_).norm();
             if (length < parameters_.min_ray_length)
                 break;
-            //if (length > parameters_.max_ray_length)
-                
-            //    continue;
+            //if (length > parameters_.max_ray_length)              
+                //continue; 
     
             int tmp_indx;
             tmp_indx = occupancy_map_->SetOccupancy(current_voxel, 0);
-
+            
             if (tmp_indx != -10000)
             {
                 if (set_free_[tmp_indx] == tt)
@@ -260,7 +260,7 @@ void Mapping<DepthMsgType, PoseMsgType>::DepthConversion()
 template<class DepthMsgType, class PoseMsgType>
 void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
 {
-    ros::Time depth_msg_time;
+    ros::Time depth_msg_time(0);
     double time_delay = 3e-3; // 3ms
 
     while(!depth_image_queue_.empty())
@@ -327,7 +327,6 @@ void Mapping<DepthMsgType, PoseMsgType>::SynchronizationAndProcess()
         
         int tt = ++total_;
         RayCastingProcess(cloud_.points.size(), tt);
-        
         
         depth_image_queue_.pop();
 
@@ -441,7 +440,7 @@ void Mapping<DepthMsgType, PoseMsgType>::UpdateOccupancyEvent(const ros::TimerEv
         */
         occupancy_map_->UpdateOccupancy(parameters_.global_update);
     }
-
+    
     if (parameters_.visualize_every_n_updates != 0 &&
         esdf_count_ % parameters_.visualize_every_n_updates == 0)
     {

@@ -97,8 +97,11 @@ void OccupancyMap::UpdateOccupancy(bool global_map)
         occupancy_queue_.pop();
         int indx = Vox2Indx(voxel.point_);
         int occupied = Exist(indx);
-        double log_odds_update = (num_hit_[indx] >= num_miss_[indx] - num_hit_[indx]) ?
-                                 logit_hit_ : logit_miss_;
+        /*double log_odds_update = (num_hit_[indx] >= num_miss_[indx] - num_hit_[indx]) ?
+                                 logit_hit_ : logit_miss_;*/
+
+        double log_odds_update = (num_miss_[indx] > num_hit_[indx]) ?
+                                 logit_miss_ : logit_hit_;
         
         num_hit_[indx] = num_miss_[indx] = 0;
 
