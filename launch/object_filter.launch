@@ -36,7 +36,7 @@
         <param name="objC_max_z" value="0.5"/>
 
         <!-- subsribe lidar point cloud -->
-        <remap from="~raw_point_cloud" to="/os_cloud_node/points"/>
+        <remap from="~raw_point_cloud" to="/uav1_os_cloud_node/points"/>
 
         <!-- subscribe object poses -->
         <remap from="~objA_pose" to="/pose_A"/>

@@ -166,6 +166,10 @@ void ObjectsFiltering::CropCloud(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPoi
 void ObjectsFiltering::RemoveSelf(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud)
 {
     //TODO
+    Eigen::Vector3f self_pos;
+    self_pos << 0.0, 0.0, 0.0;
+    
+    self_.FilterObject(input_cloud, output_cloud, self_pos);
 }
 
 
@@ -179,6 +183,8 @@ void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr input_cloud, pcl::PC
     Eigen::Vector3f sync_objA_pos;
     Eigen::Vector3f sync_objB_pos;
     Eigen::Vector3f sync_objC_pos;
+
+    RemoveSelf(input_cloud, filtered_cloud);
 
     while(objA_queue_.size() > 1 &&
           objA_queue_.front().header.stamp <= point_cloud_time + time_tolerance)
@@ -210,7 +216,7 @@ void ObjectsFiltering::FilterObjects(pcl::PCLPointCloud2Ptr input_cloud, pcl::PC
         objC_queue_.pop();
     }
     
-    objA_.FilterObject(input_cloud, filtered_cloud, sync_objA_pos);
+    // objA_.FilterObject(input_cloud, filtered_cloud, sync_objA_pos);
     // *point_cloud = filtered_cloud;
     // filtered_cloud.data.clear();
     // objB_.FilterObject(point_cloud, filtered_cloud, sync_objB_pos);

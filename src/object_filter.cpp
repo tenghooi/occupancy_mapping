@@ -23,12 +23,12 @@ void SetNodeParameters(const ros::NodeHandle& node,
     // To set box vectors for cropping out own self in point cloud
     double self_min_x, self_min_y, self_min_z;
     double self_max_x, self_max_y, self_max_z;
-    node.param<double>("self_min_x", self_min_x, 0.0);
-    node.param<double>("self_min_y", self_min_y, 0.0);
-    node.param<double>("self_min_z", self_min_z, 0.0);
-    node.param<double>("self_max_x", self_max_x, 0.0);
-    node.param<double>("self_max_y", self_max_y, 0.0);
-    node.param<double>("self_max_z", self_max_z, 0.0);
+    node.param<double>("self_min_x", self_min_x, -0.5);
+    node.param<double>("self_min_y", self_min_y, -0.5);
+    node.param<double>("self_min_z", self_min_z, -0.5);
+    node.param<double>("self_max_x", self_max_x, 0.5);
+    node.param<double>("self_max_y", self_max_y, 0.5);
+    node.param<double>("self_max_z", self_max_z, 0.5);
     self.SetMinMaxVec(self_min_x, self_min_y, self_min_z, self_max_x, self_max_y, self_max_z);
 
     double objA_min_x, objA_min_y, objA_min_z;
