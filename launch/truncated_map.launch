@@ -1,0 +1,22 @@
+<launch>
+    <node pkg="occupancy_mapping" type="truncated_map" name="truncated_map" output="screen">
+
+        <!-- Set objects crop box in meters -->
+        <!-- min x, y, z set min vector; vice versa for max vector -->
+        <!-- use square -->
+        <param name="min_x" value="-5"/>
+        <param name="min_y" value="-5"/>
+        <param name="min_z" value="-2.0"/>
+        <param name="max_x" value="5"/>
+        <param name="max_y" value="5"/>
+        <param name="max_z" value="4.0"/>
+
+        <!-- subsribe lidar point cloud -->
+        <remap from="~point_cloud" to="/visualize_pointcloud"/>
+
+        <!-- subscribe object poses -->
+        <remap from="~odometry" to="/livox_Odometry"/>
+
+    </node>
+
+</launch>

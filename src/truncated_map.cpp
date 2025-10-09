@@ -17,9 +17,9 @@ TruncatedMap::TruncatedMap(ros::NodeHandle nh)
     max_point_vec_ << max_x, max_y, max_z, 1.0;
 
     cloud_sub_ = nh.subscribe("point_cloud", 10, &TruncatedMap::cloudCallback, this);
-    odom_sub_ = nh.subscribe("odometry", 20, &TruncatedMap::odomCallback, this);
+    odom_sub_ = nh.subscribe("odometry", 10, &TruncatedMap::odomCallback, this);
 
-    filtered_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("truncated_map", 10);
+    filtered_cloud_pub_ = nh.advertise<sensor_msgs::PointCloud2>("truncated_map", 2);
 }
 
 TruncatedMap::~TruncatedMap(){}
@@ -75,7 +75,7 @@ void TruncatedMap::SyncOdom(const pcl::PCLPointCloud2Ptr input_cloud, Eigen::Vec
 {
     if (odom_queue_.empty()) return;
 
-    ros::Duration time_tolerance(2e-3); // 2ms
+    ros::Duration time_tolerance(5e-3); // 2ms
 
     // Get the timestamp of the point cloud
     ros::Time cloud_time;
@@ -98,6 +98,13 @@ void TruncatedMap::SyncOdom(const pcl::PCLPointCloud2Ptr input_cloud, Eigen::Vec
         else
         {
             odom_queue_.pop();
+            // TODO might not work well
+            if (odom_time >= cloud_time + time_tolerance*10 && odom_time <= cloud_time - time_tolerance*10)
+            {
+                std::cout << "No matching odometry message found for the point cloud timestamp." << std::endl;
+                return;
+            }
+
         }
     }
 
