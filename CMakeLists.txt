@@ -75,3 +75,13 @@ target_link_libraries(object_filter
                       Eigen3::Eigen
                       )
 
+add_executable(truncated_map 
+               src/truncated_map.cpp
+               include/truncated_map.h
+               )
+target_link_libraries(truncated_map 
+                      ${catkin_LIBRARIES}
+                      ${PCL_LIBRARIES}
+                      Eigen3::Eigen
+                      )                    
+
