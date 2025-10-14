@@ -3,7 +3,7 @@
 
         <!-- Set objects crop box in meters -->
         <!-- min x, y, z set min vector; vice versa for max vector -->
-        <!-- use square -->
+        <!-- no orientation -->
         <param name="min_x" value="-5"/>
         <param name="min_y" value="-5"/>
         <param name="min_z" value="-2.0"/>
