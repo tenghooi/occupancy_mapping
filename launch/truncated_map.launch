@@ -12,7 +12,7 @@
         <param name="max_z" value="4.0"/>
 
         <!-- subsribe lidar point cloud -->
-        <remap from="~point_cloud" to="/visualize_pointcloud"/>
+        <remap from="~point_cloud" to="/occupancy_map/visualize_pointcloud"/>
 
         <!-- subscribe object poses -->
         <remap from="~odometry" to="/livox_Odometry"/>
