@@ -54,7 +54,7 @@ void TruncatedMap::cloudCallback(const sensor_msgs::PointCloud::ConstPtr& cloud_
     pcl::PCLPointCloud2 truncated_cloud;
 
     pcl_conversions::moveToPCL(ros_pointcloud2_msg, *pcl_cloud_ptr);
-    CropOutVolume(pcl_cloud_ptr, truncated_cloud);
+    CropOutVolume(*cloud_msg, pcl_cloud_ptr, truncated_cloud);
 
     sensor_msgs::PointCloud2 ros_truncated_cloud;
     pcl_conversions::moveFromPCL(truncated_cloud, ros_truncated_cloud);
@@ -71,16 +71,14 @@ void TruncatedMap::odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg)
     odom_queue_.push(current_odom);
 }
 
-void TruncatedMap::SyncOdom(const pcl::PCLPointCloud2Ptr input_cloud, Eigen::Vector3f& sync_position)
+void TruncatedMap::SyncOdom(const sensor_msgs::PointCloud &ros_point_cloud, Eigen::Vector3f& sync_position)
 {
     if (odom_queue_.empty()) return;
 
-    ros::Duration time_tolerance(5e-3); // 2ms
+    ros::Duration time_tolerance(200e-3); // 200ms
 
     // Get the timestamp of the point cloud
-    ros::Time cloud_time;
-    cloud_time.sec = input_cloud->header.stamp / 1000000;
-    cloud_time.nsec = input_cloud->header.stamp * 1000;
+    ros::Time cloud_time =
 
     // Find the closest odometry message in the queue
     while (!odom_queue_.empty())
@@ -115,7 +113,7 @@ void TruncatedMap::SyncOdom(const pcl::PCLPointCloud2Ptr input_cloud, Eigen::Vec
     //                  last_odom.pose.pose.position.z;
 }
 
-void TruncatedMap::CropOutVolume(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud)
+void TruncatedMap::CropOutVolume(const sensor_msgs::PointCloud &ros_point_cloud, pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud)
 {
     pcl::CropBox<pcl::PCLPointCloud2> box_filter;
     box_filter.setInputCloud(input_cloud);
@@ -123,7 +121,7 @@ void TruncatedMap::CropOutVolume(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPoi
     box_filter.setMax(max_point_vec_);
 
     Eigen::Vector3f sync_position;
-    SyncOdom(input_cloud, sync_position);
+    SyncOdom(ros_point_cloud, sync_position);
     box_filter.setTranslation(sync_position);
 
     box_filter.filter(output_cloud);

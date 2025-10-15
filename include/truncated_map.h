@@ -43,8 +43,8 @@ public:
     #endif
     void odomCallback(const nav_msgs::Odometry::ConstPtr& odom_msg);
 
-    void SyncOdom(const pcl::PCLPointCloud2Ptr input_cloud, Eigen::Vector3f& sync_position);
-    void CropOutVolume(pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud);
+    void SyncOdom(const sensor_msgs::PointCloud &ros_point_cloud, Eigen::Vector3f& sync_position);
+    void CropOutVolume(const sensor_msgs::PointCloud &ros_point_cloud, pcl::PCLPointCloud2Ptr input_cloud, pcl::PCLPointCloud2& output_cloud);
 
 };
 
