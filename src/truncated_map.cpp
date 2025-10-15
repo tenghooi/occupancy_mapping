@@ -78,7 +78,7 @@ void TruncatedMap::SyncOdom(const sensor_msgs::PointCloud &ros_point_cloud, Eige
     ros::Duration time_tolerance(200e-3); // 200ms
 
     // Get the timestamp of the point cloud
-    ros::Time cloud_time =
+    ros::Time cloud_time = ros_point_cloud.header.stamp;
 
     // Find the closest odometry message in the queue
     while (!odom_queue_.empty())
@@ -96,13 +96,6 @@ void TruncatedMap::SyncOdom(const sensor_msgs::PointCloud &ros_point_cloud, Eige
         else
         {
             odom_queue_.pop();
-            // TODO might not work well
-            if (odom_time >= cloud_time + time_tolerance*10 && odom_time <= cloud_time - time_tolerance*10)
-            {
-                std::cout << "No matching odometry message found for the point cloud timestamp." << std::endl;
-                return;
-            }
-
         }
     }
 
